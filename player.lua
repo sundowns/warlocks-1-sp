@@ -5,7 +5,7 @@ player1 = {
  	height = nil,
  	x_velocity = 0,
  	y_velocity = 0,
- 	max_movement_velocity = 150,
+ 	max_movement_velocity = 130,
  	movement_friction = 200,
  	acceleration = 35,
  	health = 100,
@@ -16,23 +16,27 @@ player1 = {
  	spellbook = {},
  	modifier_aoe = 1,
  	modifier_range = 1,
- 	name = "PLAYER_1"
+ 	name = "PLAYER_1",
+ 	colour = "PURPLE",
+ 	States = {},
+ 	hibox = nil
 }
 
-playerStates = {}
+function initialisePlayer(player)
 
-function loadPlayerStates()
-	playerStates["STAND"] = { 
-		leftImg = love.graphics.newImage('assets/player/stand-left.png'),
-		rightImg = love.graphics.newImage('assets/player/stand-right.png') 
+	player.States["STAND"] = { 
+		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/stand-left.png'),
+		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/stand-right.png') 
 	}
-	playerStates["CASTING"] = {
-		leftImg = love.graphics.newImage('assets/player/cast-left.png'),
-		rightImg = love.graphics.newImage('assets/player/cast-right.png')
+	player.States["CASTING"] = {
+		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/cast-left.png'),
+		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/cast-right.png')
 	}
 
-	player1.height = playerStates["STAND"].leftImg:getHeight()
-	player1.width = playerStates["STAND"].leftImg:getWidth()
+	player.height = player.States["STAND"].leftImg:getHeight()
+	player.width = player.States["STAND"].leftImg:getWidth()
+
+	player.hitbox = HC.circle(player.x + player.width*0.75, player.y + player.height*0.75, player.height*0.8)
 end
 
 function loadPlayerControls()
@@ -49,9 +53,9 @@ end
 
 function getPlayerImg(player)
 	if player.orientation == "RIGHT" then
-		return playerStates[player.state].rightImg
+		return player.States[player.state].rightImg
 	elseif player.orientation == "LEFT" then
-		return playerStates[player.state].leftImg
+		return player.States[player.state].leftImg
 	end
 end
 
@@ -74,8 +78,8 @@ function processInput(player)
 	if love.keyboard.isDown(player.controls['SPELL1']) then
 		if player.spellbook['SPELL1'] ~= nil then 
 			if player.spellbook['SPELL1'].ready then
-				player.state = "CASTING"
-				player.selected_spell = 'SPELL1' -- They should enter 'casting' state where you pick where to cast
+				updatePlayerState(player, "CASTING")
+				player.selected_spell = 'SPELL1' 
 			end
 		end		
 	end
@@ -97,4 +101,24 @@ function calculatePlayerMovement(player, dt)
 	elseif player.y_velocity < 0 then
 		player.y_velocity = math.min(0, player.y_velocity + (player.movement_friction * dt)) 
 	end
+end
+
+function drawPlayer(player)
+	love.graphics.draw(getPlayerImg(player), player.x, player.y, 0, 1.5, 1.5)
+	if displayNames then
+		love.graphics.print(player.name, player.x - player.width, player.y - player.height)
+	end
+	if debug then
+		love.graphics.circle("line", player.hitbox:outcircle())
+	end
+end
+
+function updatePlayerState(player, state)
+	player.state = state
+	player.height = player.States[state].leftImg:getHeight()
+	player.width = player.States[state].leftImg:getWidth()
+end
+
+function updatePlayerHitbox(player)
+	player.hitbox:moveTo(player.x + player.width*0.75, player.y + player.height*0.75)
 end

@@ -2,16 +2,48 @@ debug = false
 
 --Global
 paused = false
+displayNames = false
 projectiles = {}
-players = {}
+otherPlayers = {}
+
+--Hardon Collider
+HC = require 'libs/HC'
 
 -- Load callback. Called ONCE initially
 function love.load(arg)
 	require("player")
 	require("spells")
-	loadPlayerStates()
+	require("stage")
+	initialisePlayer(player1)
 	loadSpells()
 	loadPlayerControls()
+
+	player2 = { 
+		x = love.graphics.getWidth()/2,
+	 	y = love.graphics.getWidth()/2,
+	 	width = nil,
+	 	height = nil,
+	 	x_velocity = 0,
+	 	y_velocity = 0,
+	 	max_movement_velocity = 130,
+	 	movement_friction = 200,
+	 	acceleration = 35,
+	 	health = 100,
+	 	state="STAND",
+	 	orientation="RIGHT",
+	 	selected_spell = "",
+	 	controls = {},
+	 	spellbook = {},
+	 	modifier_aoe = 1,
+	 	modifier_range = 1,
+	 	name = "PLAYER_2",
+	 	colour = "GREEN",
+	 	States = {},
+	 	hitbox = nil
+	}
+
+	initialisePlayer(player2)
+	table.insert(otherPlayers, player2)
 
 	player1.spellbook['SPELL1'] = spells['FIREBALL']
 end
@@ -22,7 +54,12 @@ function love.update(dt)
 	if not paused then 
 		calculatePlayerMovement(player1, dt)
 		processInput(player1)
-		
+		updatePlayerHitbox(player1)
+
+		for i, player in ipairs(otherPlayers) do
+			updatePlayerHitbox(player)
+		end
+
 		--Iterate over players spell calculating new cooldown timer
 		for spell, data in pairs(player1.spellbook) do
 			if not data.ready then 
@@ -35,17 +72,7 @@ function love.update(dt)
 
 		--Iterate over projectiles to update TTL
 		for i, projectile in ipairs(projectiles) do
-			projectile.time_to_live = math.max(0, projectile.time_to_live - dt)
-			if projectile.time_to_live == 0 then 
-				table.remove(projectiles, i)
-			end
-
-			projectile.x = projectile.x + (projectile.dx * dt)
-			projectile.y = projectile.y + (projectile.dy * dt)
-		end
-
-		if debug then
-			print("state: " .. player1.state .. " currentSpell: " .. player1.selected_spell)
+			updateProjectile(projectile, dt)
 		end
 	end
 end
@@ -53,19 +80,14 @@ end
 
 -- Draw callback. Called every frame
 function love.draw(dt)
-
-	love.graphics.setColor(245, 245, 220, 180)
-	love.graphics.circle("fill", love.graphics.getWidth()/2, love.graphics.getHeight()/2, love.graphics.getHeight()/3, 100)
-	love.graphics.setColor(255, 255, 255, 255)
-
-	love.graphics.draw(getPlayerImg(player1), player1.x, player1.y, 0, 1.5, 1.5)
+	drawStage() -- Draw our stage
+	drawPlayer(player1) -- Draw player1 
+	for i, player in ipairs(otherPlayers) do  -- Draw other players
+		drawPlayer(player)
+	end
 
 	for i, projectile in ipairs(projectiles) do
-  		love.graphics.draw(projectile.images[projectile.anim_current], projectile.x, projectile.y, projectile.angle, projectile.size, projectile.size)
-  		projectile.anim_current = projectile.anim_current + 1
-  		if projectile.anim_current > projectile.anim_frames then
-  			projectile.anim_current = 1
-  		end
+  		drawProjectile(projectile)
 	end
 
 	--Leave this at the end so its on top
@@ -89,20 +111,22 @@ function love.keypressed(key, scancode, isrepeat)
 	elseif key == "f1" then
 		debug = not debug	
 	elseif key == "f2" then
-		player1.modifier_aoe = 3
-		player1.modifier_range = 1.5
+		displayNames = not displayNames
 	end
 end
 
 function love.mousepressed(x, y, button)
-	if button == 1 then
-		if player1.state == "CASTING" then
-			castProjectileSpell(player1, player1.selected_spell, x, y)
-			player1.state = "STAND"
-		end
-	elseif button == 2 then
-		if player1.state == "CASTING" then
-			player1.state = "STAND"
-		end
- 	end
+	if not paused then 
+		if button == 1 then
+			if player1.state == "CASTING" then
+				castProjectileSpell(player1, player1.selected_spell, x, y)
+				updatePlayerState(player1, "STAND")
+			end
+		elseif button == 2 then
+			if player1.state == "CASTING" then
+				updatePlayerState(player1, "STAND")
+			end
+	 	end
+	end
+
 end 
