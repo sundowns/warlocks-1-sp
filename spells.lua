@@ -1,4 +1,5 @@
 spells = {}
+projectiles = {}
 
 function loadSpells()
 	spells["FIREBALL"] = {
@@ -19,9 +20,10 @@ function loadSpells()
 	spells["FIREBALL"].images[4] = love.graphics.newImage('assets/spells/fireball/4.png')
 	spells["FIREBALL"].images[5] = love.graphics.newImage('assets/spells/fireball/5.png')
 	spells["FIREBALL"].images[6] = love.graphics.newImage('assets/spells/fireball/6.png')		
+	
 end
 
-function castProjectileSpell(player, key, x, y)
+function castLinearProjectile(player, key, x, y)
 	if player.spellbook[key].ready then
 		local startX = player.x + player.width/2
 		local startY = player.y + player.height/2
@@ -45,10 +47,12 @@ function castProjectileSpell(player, key, x, y)
 			height = 0.15 * player.modifier_aoe * player.spellbook[key].images[1]:getHeight()
 		}
 
-		--This is the error, maybe the coordinates need to be rearranged or rounded so they dont 'intersect'
-		--newProjectile.hitbox = HC.polygon(calculateProjectileHitbox(
-		--	newProjectile.x, newProjectile.y, newProjectile.angle,
-		--	newProjectile.width, newProjectile.height))
+		newProjectile.hitbox = HC.polygon(calculateProjectileHitbox(
+			newProjectile.x, newProjectile.y, newProjectile.angle,
+			newProjectile.width, newProjectile.height))
+		newProjectile.hitbox.owner = newProjectile.owner 
+		newProjectile.hitbox.type = "SPELL"
+		newProjectile.hitbox.spell = "FIREBALL"
 
 		table.insert(projectiles, newProjectile)
 		player.spellbook[key].ready = false
@@ -56,13 +60,16 @@ function castProjectileSpell(player, key, x, y)
 	end	
 end
 
-function updateProjectile(projectile, dt)
+function updateProjectile(projectile, dt, kill)
 	projectile.time_to_live = math.max(0, projectile.time_to_live - dt)
-	if projectile.time_to_live == 0 then 
-		table.remove(projectiles, i)
+	if projectile.time_to_live == 0 or kill then
+		destroy(projectile)
+	else 
+		projectile.x = projectile.x + (projectile.dx * dt)
+		projectile.y = projectile.y + (projectile.dy * dt)
+
+		projectile.hitbox:moveTo(calculateProjectileCenter(projectile.x, projectile.y, projectile.angle, projectile.width, projectile.height))
 	end
-	projectile.x = projectile.x + (projectile.dx * dt)
-	projectile.y = projectile.y + (projectile.dy * dt)
 end
 
 function drawProjectile(projectile)
@@ -73,12 +80,9 @@ function drawProjectile(projectile)
 	end
 
 	if debug then
-		love.graphics.setColor(0, 0, 255, 255) 
-		local x1, y1, x2, y2, x3, y3, x4, y4 = calculateProjectileHitbox(projectile.x, projectile.y, projectile.angle, projectile.width, projectile.height)
-		love.graphics.line(x1, y1, x2, y2)
-		love.graphics.line(x1, y1, x3, y3)
-		love.graphics.line(x3, y3, x4, y4)
-		love.graphics.line(x2, y2, x4, y4)
+		love.graphics.setColor(0, 255, 0, 255)
+		projectile.hitbox:draw('line') -- hitbox polygon = green
+		love.graphics.points(calculateProjectileCenter(projectile.x, projectile.y, projectile.angle, projectile.width, projectile.height)) -- blue center
 		resetColour()
 	end
 end
@@ -91,5 +95,19 @@ function calculateProjectileHitbox(x1, y1, angle, width, height)
 	local x4 = x3 + (x2 - x1) -- x3 + the difference between x1 and x2
 	local y4 = y3 + (y2 - y1)
 
-	return x1, y1, x2, y2, x3, y3, x4, y4
+	return x1, y1, x2, y2, x4, y4, x3, y3 -- vertices in clockwise order
+end
+
+function calculateProjectileCenter(x, y, angle, width, height)
+	local x1, y1, x2, y2, x3, y3, x4, y4 = calculateProjectileHitbox(x, y, angle, width, height)
+
+	local centroidX = (x1 + x2 + x3 + x4)/4
+	local centroidY = (y1 + y2 + y3 + y4)/4
+
+	return centroidX, centroidY
+end
+
+function destroy(projectile)
+	HC.remove(projectile.hitbox) 
+	table.remove(projectiles, i)
 end

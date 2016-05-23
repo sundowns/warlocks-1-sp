@@ -3,19 +3,23 @@ debug = false
 --Global
 paused = false
 displayNames = false
-projectiles = {}
+
 otherPlayers = {}
 
 --Hardon Collider
 HC = require 'libs/HC'
+
 
 -- Load callback. Called ONCE initially
 function love.load(arg)
 	require("player")
 	require("spells")
 	require("stage")
-	initialisePlayer(player1)
+	require("effects")
+
 	loadSpells()
+	loadEffects()
+	initialisePlayer(player1)
 	loadPlayerControls()
 
 	player2 = { 
@@ -41,7 +45,6 @@ function love.load(arg)
 	 	States = {},
 	 	hitbox = nil
 	}
-
 	initialisePlayer(player2)
 	table.insert(otherPlayers, player2)
 
@@ -72,7 +75,23 @@ function love.update(dt)
 
 		--Iterate over projectiles to update TTL
 		for i, projectile in ipairs(projectiles) do
-			updateProjectile(projectile, dt)
+			local kill = false
+			for shape, delta in pairs(HC.collisions(projectile.hitbox)) do
+				if projectile.hitbox.owner ~= shape.owner then
+					if debug then
+						print("projectile collision! Proj owner: " .. projectile.hitbox.owner .. " shape owner: " .. shape.owner .. " type: ".. shape.type)
+					end
+					if shape.type == "PLAYER" then
+						addEffect("EXPLOSION", shape:center())
+					end
+
+					kill = true
+				else kill = false
+				end
+	       
+	        	
+	    	end
+			updateProjectile(projectile, dt, kill)
 		end
 	end
 end
@@ -88,6 +107,10 @@ function love.draw(dt)
 
 	for i, projectile in ipairs(projectiles) do
   		drawProjectile(projectile)
+	end
+
+	for i, effect in ipairs(effects) do
+		drawEffect(effect)
 	end
 
 	--Leave this at the end so its on top
@@ -112,6 +135,8 @@ function love.keypressed(key, scancode, isrepeat)
 		debug = not debug	
 	elseif key == "f2" then
 		displayNames = not displayNames
+	elseif key == "f5" then
+		os.execute("cls")	
 	end
 end
 
@@ -119,7 +144,7 @@ function love.mousepressed(x, y, button)
 	if not paused then 
 		if button == 1 then
 			if player1.state == "CASTING" then
-				castProjectileSpell(player1, player1.selected_spell, x, y)
+				castLinearProjectile(player1, player1.selected_spell, x, y)
 				updatePlayerState(player1, "STAND")
 			end
 		elseif button == 2 then

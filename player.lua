@@ -23,7 +23,6 @@ player1 = {
 }
 
 function initialisePlayer(player)
-
 	player.States["STAND"] = { 
 		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/stand-left.png'),
 		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/stand-right.png') 
@@ -37,6 +36,8 @@ function initialisePlayer(player)
 	player.width = player.States["STAND"].leftImg:getWidth()
 
 	player.hitbox = HC.circle(player.x + player.width*0.75, player.y + player.height*0.75, player.height*0.8)
+	player.hitbox.owner = player.name
+	player.hitbox.type = "PLAYER"
 end
 
 function loadPlayerControls()
