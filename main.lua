@@ -43,7 +43,9 @@ function love.load(arg)
 	 	name = "PLAYER_2",
 	 	colour = "GREEN",
 	 	States = {},
-	 	hitbox = nil
+	 	hitbox = nil,
+	 	projectileHit = nil,
+ 		projectile_slippa = 100
 	}
 	initialisePlayer(player2)
 	table.insert(otherPlayers, player2)
@@ -83,6 +85,7 @@ function love.update(dt)
 					end
 					if shape.type == "PLAYER" then
 						addEffect("EXPLOSION", shape:center())
+						projectileHit(shape, projectile, delta.x, delta.y, dt)
 					end
 
 					kill = true

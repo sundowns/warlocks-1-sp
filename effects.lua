@@ -35,10 +35,11 @@ end
 
 function drawEffect(effect)
 	if effect ~= nil then
-		love.graphics.draw(effect.images[effect.anim_current], effect.x, effect.y, nil, effect.size, effect.size)
-		effect.anim_current = effect.anim_current + 1
 		if effect.anim_current > #effect.images then
 			table.remove(effects, i)
+			else 
+			love.graphics.draw(effect.images[effect.anim_current], effect.x, effect.y, nil, effect.size, effect.size)
+			effect.anim_current = effect.anim_current + 1
 		end
 	end
 end

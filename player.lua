@@ -1,6 +1,6 @@
 player1 = { 
-	x = 100,
- 	y = 200,
+	x = 600,
+ 	y = 490,
  	width = nil,
  	height = nil,
  	x_velocity = 0,
@@ -19,8 +19,31 @@ player1 = {
  	name = "PLAYER_1",
  	colour = "PURPLE",
  	States = {},
- 	hibox = nil
+ 	hitbox = nil,
+ 	projectileHit = nil,
+ 	projectile_slippa = 100
 }
+
+--check id dX,dY or right, some reason it aint moving haha idk
+function projectileHit(player, projectile, dX, dY, dt)
+	if player.owner == player1.name then 
+		local x = player1.x + (player1.projectile_slippa*dX*dt)
+		local y = player1.x + (player1.projectile_slippa*dY*dt)
+		player:moveTo(x, y)
+		player1.updatePlayerPosition(player1, x, y)
+	end
+
+	for i, otherPlayer in ipairs(otherPlayers) do
+		if player.owner == otherPlayer.name then 
+			local x = otherPlayer.x + (otherPlayer.projectile_slippa*dX*dt)
+			local y = otherPlayer.x + (otherPlayer.projectile_slippa*dY*dt)
+			print ("x: " .. x .. " y: " .. y)
+			otherPlayer.hitbox:moveTo(x, y)
+			updatePlayerPosition(otherPlayer, x, y)
+		end 
+	end
+	--do triggy shiggy to figure out what direction they should fly 
+end
 
 function initialisePlayer(player)
 	player.States["STAND"] = { 
@@ -38,6 +61,8 @@ function initialisePlayer(player)
 	player.hitbox = HC.circle(player.x + player.width*0.75, player.y + player.height*0.75, player.height*0.8)
 	player.hitbox.owner = player.name
 	player.hitbox.type = "PLAYER"
+
+	player.projectileHit = projectileHit
 end
 
 function loadPlayerControls()
@@ -122,4 +147,10 @@ end
 
 function updatePlayerHitbox(player)
 	player.hitbox:moveTo(player.x + player.width*0.75, player.y + player.height*0.75)
+end
+
+function updatePlayerPosition(player, x, y)
+	print("moving " .. player.name .. " to " .. x .. "," .. y .. " from " .. player.x .. "," .. player.y)
+	player.x = x
+	player.y = y
 end
