@@ -5,9 +5,12 @@ player1 = {
  	height = nil,
  	x_velocity = 0,
  	y_velocity = 0,
+ 	base_max_movement_velocity = 130,
  	max_movement_velocity = 130,
  	movement_friction = 200,
+ 	base_acceleration = 35,
  	acceleration = 35,
+ 	max_health = 100,
  	health = 100,
  	state="STAND",
  	orientation="RIGHT",
@@ -20,52 +23,149 @@ player1 = {
  	colour = "PURPLE",
  	States = {},
  	hitbox = nil,
- 	projectileHit = nil,
- 	projectile_slippa = 100
+ 	impact_acceleration = 2000,
+ 	x_impact_velocity = 0,
+ 	y_impact_velocity = 0,
+ 	terminal_velocity = 350,
+ 	impact_friction = 80,
+ 	active_enchantments = {}
 }
 
---check id dX,dY or right, some reason it aint moving haha idk
-function projectileHit(player, projectile, dX, dY, dt)
-	if player.owner == player1.name then 
-		local x = player1.x + (player1.projectile_slippa*dX*dt)
-		local y = player1.x + (player1.projectile_slippa*dY*dt)
-		player:moveTo(x, y)
-		player1.updatePlayerPosition(player1, x, y)
-	end
+player2 = { 
+		x = love.graphics.getWidth()/2,
+	 	y = love.graphics.getWidth()/2,
+	 	width = nil,
+	 	height = nil,
+	 	x_velocity = 0,
+	 	y_velocity = 0,
+	 	max_movement_velocity = 130,
+	 	movement_friction = 200,
+	 	acceleration = 35,
+	 	max_health = 100,
+	 	health = 100,
+	 	state="STAND",
+	 	orientation="RIGHT",
+	 	selected_spell = "",
+	 	controls = {},
+	 	spellbook = {},
+	 	modifier_aoe = 1,
+	 	modifier_range = 1,
+	 	name = "PLAYER_2",
+	 	colour = "GREEN",
+	 	States = {},
+	 	hitbox = nil,
+	 	impact_acceleration = 2000,
+	 	x_impact_velocity = 0,
+	 	y_impact_velocity = 0,
+	 	terminal_velocity = 350,
+	 	impact_friction = 80,
+	 	active_enchantments = {}
+	}
 
-	for i, otherPlayer in ipairs(otherPlayers) do
-		if player.owner == otherPlayer.name then 
-			local x = otherPlayer.x + (otherPlayer.projectile_slippa*dX*dt)
-			local y = otherPlayer.x + (otherPlayer.projectile_slippa*dY*dt)
-			print ("x: " .. x .. " y: " .. y)
-			otherPlayer.hitbox:moveTo(x, y)
-			updatePlayerPosition(otherPlayer, x, y)
+players = {}
+skillslots = {'SPELL1', 'SPELL2', 'SPELL3', 'SPELL4', 'SPELL5'}
+
+--check id dX,dY or right, some reason it aint moving haha idk
+function projectileHit(playerShape, projectile, dX, dY)
+	for i, player in ipairs(players) do
+		if playerShape.owner == player.name then 
+			player.x_impact_velocity = math.clamp(player.x_impact_velocity + math.clamp((-dX*player.impact_acceleration), -projectile.max_impulse, projectile.max_impulse), -player.terminal_velocity, player.terminal_velocity)
+			player.y_impact_velocity = math.clamp(player.y_impact_velocity + math.clamp((-dY*player.impact_acceleration), -projectile.max_impulse, projectile.max_impulse), -player.terminal_velocity, player.terminal_velocity)
+			applyDamage(player, projectile.damage)
 		end 
 	end
-	--do triggy shiggy to figure out what direction they should fly 
 end
 
-function initialisePlayer(player)
-	player.States["STAND"] = { 
-		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/stand-left.png'),
-		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/stand-right.png') 
-	}
-	player.States["CASTING"] = {
-		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/cast-left.png'),
-		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/cast-right.png')
+function applyDamage(player, damage)
+	addTextData(damage, player.x, player.y, 4, "DAMAGE")
+	player.health = math.max(0, player.health - damage)
+	if debug then
+		print(player.name .. "'s HP: " .. player.health)
+	end
+	if player.health <= 0 then
+		player.state = "DEAD"
+	end
+end
+
+function initPlayer(player)
+	--STAND
+	player.States["STAND"] = {
+		animation={},
+		currentFrame = 1,
+		timeBetweenFrames = 1000,
+		frameTimer = 1000
 	}
 
-	player.height = player.States["STAND"].leftImg:getHeight()
-	player.width = player.States["STAND"].leftImg:getWidth()
+	player.States["STAND"].animation[1] = {
+		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/stand-left.png'),
+		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/stand-right.png'),
+	}
+
+	--RUN
+	player.States["RUN"] = { 
+		animation = {},
+		currentFrame = 1,
+		timeBetweenFrames = 0.15,
+		frameTimer = 0.15
+	}
+	player.States["RUN"].animation[1] = {
+		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-left-1.png'),
+		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-right-1.png')
+	}
+	player.States["RUN"].animation[2] = {
+		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-left-2.png'),
+		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-right-2.png')
+	}
+	player.States["RUN"].animation[3] = {
+		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-left-3.png'),
+		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-right-3.png')
+	}
+	player.States["RUN"].animation[4] = {
+		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-left-4.png'),
+		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-right-4.png')
+	}
+	player.States["RUN"].animation[5] = {
+		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-left-5.png'),
+		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-right-5.png')
+	}
+	player.States["RUN"].animation[6] = {
+		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-left-6.png'),
+		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-right-6.png')
+	}
+
+	--CASTING
+	player.States["CASTING"] = { 
+		animation = {},
+		currentFrame = 1,
+		timeBetweenFrames = 1000,
+		frameTimer = 1000
+	}
+	player.States["CASTING"].animation[1] = {
+		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/cast-left.png'),
+		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/cast-right.png'),
+	}
+
+	--DEAD
+	player.States["DEAD"] = { 
+		animation = {},
+		currentFrame = 1,
+		timeBetweenFrames = 1000,
+		frameTimer = 1000
+	}
+	player.States["DEAD"].animation[1] = {
+		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/dead-left.png'),
+		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/dead-right.png'),
+	}
+
+	player.height = player.States["STAND"].animation[1].leftImg:getHeight()
+	player.width = player.States["STAND"].animation[1].leftImg:getWidth()
 
 	player.hitbox = HC.circle(player.x + player.width*0.75, player.y + player.height*0.75, player.height*0.8)
 	player.hitbox.owner = player.name
 	player.hitbox.type = "PLAYER"
-
-	player.projectileHit = projectileHit
 end
 
-function loadPlayerControls()
+function initPlayerControls()
 	player1.controls['RIGHT'] = 'd'
 	player1.controls['LEFT'] = 'a'
 	player1.controls['UP'] = 'w'
@@ -75,18 +175,30 @@ function loadPlayerControls()
 	player1.controls['SPELL3'] = '3'
 	player1.controls['SPELL4'] = '4'
 	player1.controls['SPELL5'] = '5'
+
+	player2.controls['RIGHT'] = 'right'
+	player2.controls['LEFT'] = 'left'
+	player2.controls['UP'] = 'up'
+	player2.controls['DOWN'] = 'down'
+	player2.controls['SPELL1'] = 'kp1'
+	player2.controls['SPELL2'] = 'kp2'
+	player2.controls['SPELL3'] = 'kp3'
+	player2.controls['SPELL4'] = 'kp4'
+	player2.controls['SPELL5'] = 'kp5'
 end
 
 function getPlayerImg(player)
+	local img = nil
 	if player.orientation == "RIGHT" then
-		return player.States[player.state].rightImg
+		img = player.States[player.state].animation[player.States[player.state].currentFrame].rightImg
 	elseif player.orientation == "LEFT" then
-		return player.States[player.state].leftImg
+		img = player.States[player.state].animation[player.States[player.state].currentFrame].leftImg
 	end
+	return img
 end
 
 function processInput(player)
-	if player.state == "STAND" then 
+	if player.state == "STAND" or player.state == "RUN" then 
 		if love.keyboard.isDown(player.controls['RIGHT'])  then
 			player.x_velocity = math.min(player.x_velocity + player.acceleration, player.max_movement_velocity)
 		end 
@@ -100,32 +212,72 @@ function processInput(player)
 			player.y_velocity = math.min(player.y_velocity + player.acceleration, player.max_movement_velocity)
 		end
 	end
-	
-	if love.keyboard.isDown(player.controls['SPELL1']) then
-		if player.spellbook['SPELL1'] ~= nil then 
-			if player.spellbook['SPELL1'].ready then
-				updatePlayerState(player, "CASTING")
-				player.selected_spell = 'SPELL1' 
-			end
-		end		
+
+	for i=1, #skillslots do
+		if love.keyboard.isDown(player.controls[skillslots[i]]) then
+			if player.spellbook[skillslots[i]] ~= nil then 
+				if player.spellbook[skillslots[i]].ready then
+					player.selected_spell = skillslots[i] 
+					if player.spellbook[skillslots[i]].archetype == "PROJECTILE" then
+						updatePlayerState(player, "CASTING")
+					elseif player.spellbook[skillslots[i]].archetype == "ENCHANTMENT" then
+						if player.state == "STAND" or player.state == "RUN" then
+							castSpell(player, player.spellbook[skillslots[i]])
+						end
+					end
+				end
+			end		
+		end
 	end
+
 end
 
 function calculatePlayerMovement(player, dt)
-	player.x = player.x + (player.x_velocity * dt)
-	player.y = player.y + (player.y_velocity * dt)
-	if player.x_velocity > 0 then 
+	updatePlayerPosition(player, (player.x + ((player.x_velocity * dt) + (player.x_impact_velocity*dt))), (player.y + ((player.y_velocity * dt) + (player.y_impact_velocity * dt))))
+	--Movement velocity - movement friction	
+	if player.x_velocity > 1 then 
 		player.orientation = "RIGHT"
-		player.x_velocity = math.max(0, player.x_velocity - (player.movement_friction * dt)) 
-	elseif player.x_velocity < 0 then
+		if player.state == "STAND" then 
+			updatePlayerState(player, "RUN")
+		end
+		player.x_velocity = math.max(0, player.x_velocity - (player.movement_friction * dt))
+	elseif player.x_velocity < -1 then
 		player.orientation = "LEFT"
+		if player.state == "STAND" then 
+			updatePlayerState(player, "RUN")
+		end
 		player.x_velocity = math.min(0, player.x_velocity + (player.movement_friction * dt)) 
 	end
 
-	if player.y_velocity > 0 then 
+	if player.y_velocity > 1 then 
+		if player.state == "STAND" then 
+			updatePlayerState(player, "RUN")
+		end
 		player.y_velocity = math.max(0, player.y_velocity - (player.movement_friction * dt)) 
-	elseif player.y_velocity < 0 then
+	elseif player.y_velocity < -1 then
+		if player.state == "STAND" then 
+			updatePlayerState(player, "RUN")
+		end
 		player.y_velocity = math.min(0, player.y_velocity + (player.movement_friction * dt)) 
+	end
+
+	if player.x_velocity < 1 and player.x_velocity > -1 and player.y_velocity < 1 and player.y_velocity > -1 then
+		if player.state == "RUN" then 
+			updatePlayerState(player, "STAND")
+		end
+	end
+
+	--Impact velocity - impact friction
+	if player.x_impact_velocity > 0 then 	
+		player.x_impact_velocity = math.max(0, player.x_impact_velocity - (player.impact_friction * dt))
+	elseif player.x_impact_velocity < 0 then
+		player.x_impact_velocity = math.min(0, player.x_impact_velocity + (player.impact_friction * dt)) 
+	end
+
+	if player.y_impact_velocity > 0 then 
+		player.y_impact_velocity = math.max(0, player.y_impact_velocity - (player.impact_friction * dt)) 
+	elseif player.y_impact_velocity < 0 then
+		player.y_impact_velocity = math.min(0, player.y_impact_velocity + (player.impact_friction * dt)) 
 	end
 end
 
@@ -140,9 +292,10 @@ function drawPlayer(player)
 end
 
 function updatePlayerState(player, state)
+	player.States[player.state].currentFrame = 1
 	player.state = state
-	player.height = player.States[state].leftImg:getHeight()
-	player.width = player.States[state].leftImg:getWidth()
+	player.height = player.States[state].animation[1].leftImg:getHeight()
+	player.width = player.States[state].animation[1].leftImg:getWidth()
 end
 
 function updatePlayerHitbox(player)
@@ -150,7 +303,7 @@ function updatePlayerHitbox(player)
 end
 
 function updatePlayerPosition(player, x, y)
-	print("moving " .. player.name .. " to " .. x .. "," .. y .. " from " .. player.x .. "," .. player.y)
 	player.x = x
 	player.y = y
+	updatePlayerHitbox(player)
 end

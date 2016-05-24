@@ -1,69 +1,172 @@
 spells = {}
 projectiles = {}
 
-function loadSpells()
+function initSpells()
+	--FIREBALL--
 	spells["FIREBALL"] = {
 		name = "Fireball",
 		level = 1,
-		cooldown = 2, --make this 8?
+		archetype = "PROJECTILE",
+		cooldown = 1, --make this 8?
 		timer = 0,
 		ready = true,
-		lifespan = 2,
+		lifespan = 3, --make this 2?
 		speed = 160,
-		anim_current = 1,
-		images = {}
+		currentFrame = 1,
+		animation = {},
+		max_impulse = 120,
+		damage = 8,
+		timeBetweenFrames = 0.1,
+		frameTimer = 0.1,
+		size = 0.15
 	}
 
-	spells["FIREBALL"].images[1] = love.graphics.newImage('assets/spells/fireball/1.png')
-	spells["FIREBALL"].images[2] = love.graphics.newImage('assets/spells/fireball/2.png')
-	spells["FIREBALL"].images[3] = love.graphics.newImage('assets/spells/fireball/3.png')
-	spells["FIREBALL"].images[4] = love.graphics.newImage('assets/spells/fireball/4.png')
-	spells["FIREBALL"].images[5] = love.graphics.newImage('assets/spells/fireball/5.png')
-	spells["FIREBALL"].images[6] = love.graphics.newImage('assets/spells/fireball/6.png')		
-	
+	spells["FIREBALL"].animation[1] = love.graphics.newImage('assets/spells/fireball/1.png')
+	spells["FIREBALL"].animation[2] = love.graphics.newImage('assets/spells/fireball/2.png')
+	spells["FIREBALL"].animation[3] = love.graphics.newImage('assets/spells/fireball/3.png')
+	spells["FIREBALL"].animation[4] = love.graphics.newImage('assets/spells/fireball/4.png')
+	spells["FIREBALL"].animation[5] = love.graphics.newImage('assets/spells/fireball/5.png')
+	spells["FIREBALL"].animation[6] = love.graphics.newImage('assets/spells/fireball/6.png')		
+
+	--SPRINT
+
+	spells["SPRINT"] = {
+		name = "Sprint",
+		level = 1,
+		archetype = "ENCHANTMENT",
+		cooldown = 4, 
+		ready = true,
+		lifespan = 5, 
+		buff_acceleration = 50,
+		buff_max_velocity = 200,
+		currentFrame = 1,
+		animation = {},
+		timeBetweenFrames = 0.015,
+		frameTimer = 0.015,
+		size = 1
+	}
+
+	spells["SPRINT"].animation[1]= love.graphics.newImage('assets/spells/sprint/1.png')
+	spells["SPRINT"].animation[2]= love.graphics.newImage('assets/spells/sprint/2.png')
+	spells["SPRINT"].animation[3]= love.graphics.newImage('assets/spells/sprint/3.png')
+	spells["SPRINT"].animation[4]= love.graphics.newImage('assets/spells/sprint/4.png')
+	spells["SPRINT"].animation[5]= love.graphics.newImage('assets/spells/sprint/5.png')
+	spells["SPRINT"].animation[6]= love.graphics.newImage('assets/spells/sprint/6.png')
+	spells["SPRINT"].animation[7]= love.graphics.newImage('assets/spells/sprint/7.png')
+	spells["SPRINT"].animation[8]= love.graphics.newImage('assets/spells/sprint/8.png')
+	spells["SPRINT"].animation[9]= love.graphics.newImage('assets/spells/sprint/9.png')
+	spells["SPRINT"].animation[10]= love.graphics.newImage('assets/spells/sprint/10.png')
+	spells["SPRINT"].animation[11]= love.graphics.newImage('assets/spells/sprint/11.png')
+	spells["SPRINT"].animation[12]= love.graphics.newImage('assets/spells/sprint/12.png')
+	spells["SPRINT"].animation[13]= love.graphics.newImage('assets/spells/sprint/13.png')
+	spells["SPRINT"].animation[14]= love.graphics.newImage('assets/spells/sprint/14.png')
+	spells["SPRINT"].animation[15]= love.graphics.newImage('assets/spells/sprint/15.png')
+	spells["SPRINT"].animation[16]= love.graphics.newImage('assets/spells/sprint/16.png')
 end
 
-function castLinearProjectile(player, key, x, y)
-	if player.spellbook[key].ready then
-		local startX = player.x + player.width/2
-		local startY = player.y + player.height/2
-		local p_angle = math.atan2((y - startY), (x - startX))
-		local p_Dx = player.spellbook[key].speed * math.cos(p_angle)
-		local p_Dy = player.spellbook[key].speed * math.sin(p_angle)
-		newProjectile = {
-			x = startX,
-			y = startY,
-			dx = p_Dx,
-			dy = p_Dy,
-			angle = p_angle,
-			img = player.spellbook[key].img,
-			time_to_live = player.spellbook[key].lifespan * player.modifier_range,
-			size = 0.15 * player.modifier_aoe,
-			anim_current = 1,
-			images = player.spellbook[key].images,
-			owner = player.name,
-			hitbox = nil,
-			width = 0.15 * player.modifier_aoe * player.spellbook[key].images[1]:getWidth(),
-			height = 0.15 * player.modifier_aoe * player.spellbook[key].images[1]:getHeight()
-		}
-
-		newProjectile.hitbox = HC.polygon(calculateProjectileHitbox(
-			newProjectile.x, newProjectile.y, newProjectile.angle,
-			newProjectile.width, newProjectile.height))
-		newProjectile.hitbox.owner = newProjectile.owner 
-		newProjectile.hitbox.type = "SPELL"
-		newProjectile.hitbox.spell = "FIREBALL"
-
-		table.insert(projectiles, newProjectile)
-		player.spellbook[key].ready = false
-		player.spellbook[key].timer = player.spellbook[key].cooldown
-	end	
+function castSpell(player, spell, x, y)
+	if spell.ready then 
+		if spell.archetype == "PROJECTILE" then 
+			if spell.name == "Fireball" then 
+				castLinearProjectile(player, spell, x, y)
+			end
+			updatePlayerState(player, "STAND")
+		elseif spell.archetype == "ENCHANTMENT" then
+			if spell.name == "Sprint" then 
+				castSprint(player, spell)
+			end
+		end
+	end
 end
 
-function updateProjectile(projectile, dt, kill)
+function castSprint(player, spell) 
+	print("X: " ..player.x .. " Y: " .. player.y .. " w: " .. player.width .. ' h: ' .. player.height)
+	local startX = player.x + player.width
+	local startY = player.y + player.height
+	addSpellEffect(spell, startX, startY, spell.lifespan, player.name)
+	local sprintEnchant = {
+		duration = spell.lifespan,
+		name = spell.name,
+		mode = spell.archetype,
+		buff_max_velocity = spell.buff_max_velocity,
+		buff_acceleration = spell.buff_acceleration
+	}
+	player.active_enchantments['SPRINT'] = sprintEnchant
+	player.max_movement_velocity = player.max_movement_velocity + spell.buff_max_velocity
+	player.acceleration = player.acceleration + spell.buff_acceleration
+	spell.ready = false
+	spell.timer = spell.cooldown
+end
+
+function updateEnchantments(player, dt) 
+	for key, enchantment in pairs(player.active_enchantments) do 
+		print(enchantment.duration)
+		enchantment.duration = math.max(0, enchantment.duration - dt)
+		if enchantment.mode == "ENCHANTMENT" then
+			for i, effect in ipairs(effects) do
+				if effect.key == enchantment.name..'-'..player.name then
+					effect.x = player.x - effect.animation[1]:getWidth()/2 + player.width
+					effect.y = player.y - effect.animation[1]:getHeight()/2 + player.height
+				end
+			end
+		end
+
+		if enchantment.duration == 0 then
+			print('never happens ' .. enchantment.name)
+			if enchantment.name == 'Sprint' then
+				print('death to sprint')
+				player.max_movement_velocity = player.max_movement_velocity - enchantment.buff_max_velocity
+				player.acceleration = player.acceleration - enchantment.buff_acceleration
+			end
+			player.active_enchantments[key] = nil
+		end
+	end
+end
+
+function castLinearProjectile(player, spell, x, y)
+	local startX = player.x + player.width/2
+	local startY = player.y + player.height/2
+	local p_angle = math.atan2((y - startY), (x - startX))
+	local p_Dx = spell.speed * math.cos(p_angle)
+	local p_Dy = spell.speed * math.sin(p_angle)
+
+	newProjectile = {
+		x = startX,
+		y = startY,
+		dx = p_Dx,
+		dy = p_Dy,
+		angle = p_angle,
+		img = spell.img,
+		time_to_live = spell.lifespan * player.modifier_range,
+		size = spell.size * player.modifier_aoe,
+		currentFrame = 1,
+		animation = spell.animation,
+		owner = player.name,
+		hitbox = nil,
+		width = spell.size * player.modifier_aoe * spell.animation[1]:getWidth(),
+		height = spell.size * player.modifier_aoe * spell.animation[1]:getHeight(),
+		max_impulse = spell.max_impulse,
+		damage = spell.damage,
+		frameTimer = spell.frameTimer,
+		timeBetweenFrames = spell.timeBetweenFrames
+	}
+
+	newProjectile.hitbox = HC.polygon(calculateProjectileHitbox(
+		newProjectile.x, newProjectile.y, newProjectile.angle,
+		newProjectile.width, newProjectile.height))
+	newProjectile.hitbox.owner = newProjectile.owner 
+	newProjectile.hitbox.type = "SPELL"
+	newProjectile.hitbox.spell = "FIREBALL"
+
+	table.insert(projectiles, newProjectile)
+	spell.ready = false
+	spell.timer = spell.cooldown
+end
+
+function updateProjectile(projectile, dt, kill, i)
 	projectile.time_to_live = math.max(0, projectile.time_to_live - dt)
 	if projectile.time_to_live == 0 or kill then
-		destroy(projectile)
+		destroy(projectile, i)
 	else 
 		projectile.x = projectile.x + (projectile.dx * dt)
 		projectile.y = projectile.y + (projectile.dy * dt)
@@ -73,11 +176,7 @@ function updateProjectile(projectile, dt, kill)
 end
 
 function drawProjectile(projectile)
-	love.graphics.draw(projectile.images[projectile.anim_current], projectile.x, projectile.y, projectile.angle, projectile.size, projectile.size)
-	projectile.anim_current = projectile.anim_current + 1
-	if projectile.anim_current > #projectile.images then
-		projectile.anim_current = 1
-	end
+	love.graphics.draw(projectile.animation[projectile.currentFrame], projectile.x, projectile.y, projectile.angle, projectile.size, projectile.size)
 
 	if debug then
 		love.graphics.setColor(0, 255, 0, 255)
@@ -107,7 +206,7 @@ function calculateProjectileCenter(x, y, angle, width, height)
 	return centroidX, centroidY
 end
 
-function destroy(projectile)
+function destroy(projectile, i)
 	HC.remove(projectile.hitbox) 
 	table.remove(projectiles, i)
 end

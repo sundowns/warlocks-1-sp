@@ -1,119 +1,83 @@
-debug = false
-
 --Global
+debug = false
 paused = false
 displayNames = false
-
-otherPlayers = {}
 
 --Hardon Collider
 HC = require 'libs/HC'
 
-
 -- Load callback. Called ONCE initially
 function love.load(arg)
+	require("util")
 	require("player")
 	require("spells")
 	require("stage")
 	require("effects")
 
-	loadSpells()
-	loadEffects()
-	initialisePlayer(player1)
-	loadPlayerControls()
-
-	player2 = { 
-		x = love.graphics.getWidth()/2,
-	 	y = love.graphics.getWidth()/2,
-	 	width = nil,
-	 	height = nil,
-	 	x_velocity = 0,
-	 	y_velocity = 0,
-	 	max_movement_velocity = 130,
-	 	movement_friction = 200,
-	 	acceleration = 35,
-	 	health = 100,
-	 	state="STAND",
-	 	orientation="RIGHT",
-	 	selected_spell = "",
-	 	controls = {},
-	 	spellbook = {},
-	 	modifier_aoe = 1,
-	 	modifier_range = 1,
-	 	name = "PLAYER_2",
-	 	colour = "GREEN",
-	 	States = {},
-	 	hitbox = nil,
-	 	projectileHit = nil,
- 		projectile_slippa = 100
-	}
-	initialisePlayer(player2)
-	table.insert(otherPlayers, player2)
+	initSpells() -- Load spell data & images
+	initEffects() -- Load effect data & images
+	initPlayer(player1)
+	initPlayer(player2)
+	initPlayerControls() -- load player1 controlscheme
+	table.insert(players, player1)
+	table.insert(players, player2)
 
 	player1.spellbook['SPELL1'] = spells['FIREBALL']
+	player1.spellbook['SPELL2'] = spells['SPRINT']
 end
 -- End Load
 
 -- Update callback. Called every frame
 function love.update(dt)
 	if not paused then 
-		calculatePlayerMovement(player1, dt)
-		processInput(player1)
-		updatePlayerHitbox(player1)
-
-		for i, player in ipairs(otherPlayers) do
-			updatePlayerHitbox(player)
+		for i, player in ipairs(players) do
+			calculatePlayerMovement(player, dt)
+			processInput(player)
+			updateEnchantments(player, dt)
 		end
-
-		--Iterate over players spell calculating new cooldown timer
-		for spell, data in pairs(player1.spellbook) do
-			if not data.ready then 
-				data.timer = math.max(0, data.timer - dt) 
-				if data.timer == 0 then
-					data.ready = true
-				end
-			end
-		end
-
+		
+		updateTimers(dt)
+		
 		--Iterate over projectiles to update TTL
 		for i, projectile in ipairs(projectiles) do
+			--print(#projectiles	)
 			local kill = false
 			for shape, delta in pairs(HC.collisions(projectile.hitbox)) do
 				if projectile.hitbox.owner ~= shape.owner then
-					if debug then
-						print("projectile collision! Proj owner: " .. projectile.hitbox.owner .. " shape owner: " .. shape.owner .. " type: ".. shape.type)
-					end
 					if shape.type == "PLAYER" then
 						addEffect("EXPLOSION", shape:center())
-						projectileHit(shape, projectile, delta.x, delta.y, dt)
+						projectileHit(shape, projectile, delta.x, delta.y)
+						kill = true
 					end
-
-					kill = true
-				else kill = false
-				end
-	       
-	        	
-	    	end
-			updateProjectile(projectile, dt, kill)
+				end  	
+  		end
+			updateProjectile(projectile, dt, kill, i)
 		end
+
+
+
 	end
 end
 -- End update
 
 -- Draw callback. Called every frame
-function love.draw(dt)
+function love.draw()
 	drawStage() -- Draw our stage
-	drawPlayer(player1) -- Draw player1 
-	for i, player in ipairs(otherPlayers) do  -- Draw other players
-		drawPlayer(player)
+	
+	for i, effect in ipairs(effects) do
+		drawEffect(effect, i)
 	end
 
 	for i, projectile in ipairs(projectiles) do
   		drawProjectile(projectile)
 	end
 
-	for i, effect in ipairs(effects) do
-		drawEffect(effect)
+	for i, player in ipairs(players) do  -- Draw players
+		drawPlayer(player)
+	end
+
+	for i, data in ipairs(textLog) do
+			drawTextData(data, i)
 	end
 
 	--Leave this at the end so its on top
@@ -138,8 +102,17 @@ function love.keypressed(key, scancode, isrepeat)
 		debug = not debug	
 	elseif key == "f2" then
 		displayNames = not displayNames
+	elseif key == "f3" then
+		updatePlayerState(player1, "STAND")
+		updatePlayerState(player2, "STAND")
+		player1.health = player1.max_health
+		player2.health = player2.max_health
+		updatePlayerPosition(player1, 600, 500)
+		updatePlayerPosition(player2, 600, 600)
 	elseif key == "f5" then
 		os.execute("cls")	
+	elseif key == "esc"then
+		love.quit()
 	end
 end
 
@@ -147,8 +120,7 @@ function love.mousepressed(x, y, button)
 	if not paused then 
 		if button == 1 then
 			if player1.state == "CASTING" then
-				castLinearProjectile(player1, player1.selected_spell, x, y)
-				updatePlayerState(player1, "STAND")
+				castSpell(player1, player1.spellbook[player1.selected_spell], x, y)
 			end
 		elseif button == 2 then
 			if player1.state == "CASTING" then
@@ -156,5 +128,70 @@ function love.mousepressed(x, y, button)
 			end
 	 	end
 	end
-
 end 
+
+function updateTimers(dt)
+	--Iterate over players spell calculating new cooldown timer
+	for spell, data in pairs(player1.spellbook) do
+		if not data.ready then 
+			data.timer = math.max(0, data.timer - dt) 
+			if data.timer == 0 then
+				data.ready = true
+			end
+		end
+	end
+
+	for i, data in ipairs(textLog) do --combat text timers
+		data.timer = math.max(0, data.timer - dt) 		
+	end
+
+	for i, player in ipairs(players) do  -- player animation timer
+		player.States[player.state].frameTimer = math.max(0, player.States[player.state].frameTimer - dt)
+		
+		if player.States[player.state].frameTimer <= 0 then 
+			if #player.States[player.state].animation > 1 then
+				player.States[player.state].currentFrame = player.States[player.state].currentFrame + 1 
+			end
+			if player.States[player.state].currentFrame > #player.States[player.state].animation then
+				player.States[player.state].currentFrame = 1
+			end
+			player.States[player.state].frameTimer = player.States[player.state].timeBetweenFrames
+		end
+	end
+
+	for i, projectile in ipairs(projectiles) do  -- projectile animation timers
+		projectile.frameTimer = math.max(0, projectile.frameTimer - dt)
+		if projectile.frameTimer <= 0 then 
+			if #projectile.animation > 1 then
+				projectile.currentFrame = projectile.currentFrame + 1 
+			end
+			if projectile.currentFrame > #projectile.animation then
+				projectile.currentFrame = 1
+			end
+			projectile.frameTimer = projectile.timeBetweenFrames
+		end
+	end
+
+	for i, effect in ipairs(effects) do  -- effect animation timers
+		effect.frameTimer = math.max(0, effect.frameTimer - dt)
+		if effect.frameTimer <= 0 then 
+			if #effect.animation > 1 then
+				effect.currentFrame = effect.currentFrame + 1 
+			end
+			if effect.currentFrame > #effect.animation then
+				if effect.loop then
+					effect.currentFrame = 1
+				else 
+					table.remove(effects, i)
+				end
+			end
+			effect.frameTimer = effect.timeBetweenFrames
+		end
+		if effect.loop then
+			effect.duration = math.max(0, effect.duration - dt)
+			if effect.duration == 0 then
+				table.remove(effects, i)
+			end
+		end
+	end
+end
