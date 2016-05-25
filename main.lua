@@ -3,8 +3,13 @@ debug = false
 paused = false
 displayNames = false
 
+--Test
+drawthatX = 1
+drawthatY = 1
+
 --Hardon Collider
 HC = require 'libs/HC'
+Camera = require 'libs/camera'
 
 -- Load callback. Called ONCE initially
 function love.load(arg)
@@ -22,6 +27,7 @@ function love.load(arg)
 	initPlayerControls() -- load player1 controlscheme
 	table.insert(players, player1)
 	table.insert(players, player2)
+	camera = Camera(player1.x, player1.y)
 
 	player1.spellbook['SPELL1'] = spells['FIREBALL']
 	player1.spellbook['SPELL2'] = spells['SPRINT']
@@ -38,6 +44,8 @@ function love.update(dt)
 		end
 		
 		updateTimers(dt)
+
+    camera:lookAt(player1.x, player1.y)
 		
 		--Iterate over projectiles to update TTL
 		for i, projectile in ipairs(projectiles) do
@@ -63,23 +71,33 @@ end
 
 -- Draw callback. Called every frame
 function love.draw()
+	camera:attach()
+
 	drawStage() -- Draw our stage
 	
 	for i, effect in ipairs(effects) do
 		drawEffect(effect, i)
 	end
 
-	for i, projectile in ipairs(projectiles) do
-  		drawProjectile(projectile)
-	end
+	
 
 	for i, player in ipairs(players) do  -- Draw players
 		drawPlayer(player)
 	end
 
+	for i, projectile in ipairs(projectiles) do
+  		drawProjectile(projectile)
+	end
+
 	for i, data in ipairs(textLog) do
 			drawTextData(data, i)
 	end
+
+
+
+	love.graphics.circle('fill', drawthatX, drawthatY, 3, 16)
+
+	camera:detach()
 
 	--Leave this at the end so its on top
 	if (paused) then
@@ -115,11 +133,27 @@ function love.keypressed(key, scancode, isrepeat)
 	end
 end
 
-function love.mousepressed(x, y, button)
+projectileTargetX = nil
+projectileTargetY = nil
+
+function love.mousepressed(x, y, button, istouch)
+	projectileTargetX = x
+	projectileTargetY = y
+end
+
+
+
+function love.mousereleased(x, y, button)
 	if not paused then 
+		local camX, camY = camera:worldCoords(love.mouse.getPosition())
+		
+		local screenX = projectileTargetX + camX - love.graphics.getWidth()/2
+		local screenY = projectileTargetY + camY - love.graphics.getHeight()/2
 		if button == 1 then
 			if player1.state == "CASTING" then
-				castSpell(player1, player1.spellbook[player1.selected_spell], x, y)
+				drawthatX = x
+				drawthatY = y
+				castSpell(player1, player1.spellbook[player1.selected_spell], screenX, screenY)
 			end
 		elseif button == 2 then
 			if player1.state == "CASTING" then

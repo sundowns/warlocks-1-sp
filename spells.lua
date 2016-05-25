@@ -112,9 +112,7 @@ function updateEnchantments(player, dt)
 		end
 
 		if enchantment.duration == 0 then
-			print('never happens ' .. enchantment.name)
 			if enchantment.name == 'Sprint' then
-				print('death to sprint')
 				player.max_movement_velocity = player.max_movement_velocity - enchantment.buff_max_velocity
 				player.acceleration = player.acceleration - enchantment.buff_acceleration
 			end
@@ -126,13 +124,40 @@ end
 function castLinearProjectile(player, spell, x, y)
 	local startX = player.x + player.width/2
 	local startY = player.y + player.height/2
-	local p_angle = math.atan2((y - startY), (x - startX))
+	local p_angle = nil
+	local modifierX = 0
+	local modifierY = 0
+	local camX, camY = camera:position()
+
+	--
+	-- TOM NOTICE!!!!!!!!!!!!!!!!!!!!!!!
+	-- It seems to be working in the bottom right quadrant (along the diagonal)
+	-- Try making them bin based on a diagonal X rather than a + like it is currently?
+
+
+	print('cam '.. camX..','..camY) 
+	print('mouse '.. x..','..y)
+	if x < camX and y < camY then
+		p_angle = math.atan2((y - spell.animation[1]:getWidth()/2 - startY), (x - spell.animation[1]:getHeight()/2 - startX))
+		print('top-left')
+	elseif x > camX and y < camY then
+		print('top-right')
+		p_angle = math.atan2((y - spell.animation[1]:getWidth()/2 - startY), (x - spell.animation[1]:getHeight()/2 - startX))
+	elseif x < camX and y > camY then
+		print('bottom-left')
+		p_angle = math.atan2((y - spell.animation[1]:getWidth()/2 - startY), (x - spell.animation[1]:getHeight()/2 - startX))
+	elseif x > camX and y > camY then
+		print('bottom-right')
+		p_angle = math.atan2((y - spell.animation[1]:getWidth()/2 - startY), (x - spell.animation[1]:getHeight()/2 - startX))
+	end
 	local p_Dx = spell.speed * math.cos(p_angle)
 	local p_Dy = spell.speed * math.sin(p_angle)
+	local launchX = player.x + player.width*0.5
+	local launchY = player.y + player.width*0.5
 
 	newProjectile = {
-		x = startX,
-		y = startY,
+		x = launchX,
+		y = launchY,
 		dx = p_Dx,
 		dy = p_Dy,
 		angle = p_angle,
@@ -148,7 +173,9 @@ function castLinearProjectile(player, spell, x, y)
 		max_impulse = spell.max_impulse,
 		damage = spell.damage,
 		frameTimer = spell.frameTimer,
-		timeBetweenFrames = spell.timeBetweenFrames
+		timeBetweenFrames = spell.timeBetweenFrames,
+		testX = launchX,
+		testY = launchY
 	}
 
 	newProjectile.hitbox = HC.polygon(calculateProjectileHitbox(
@@ -179,6 +206,8 @@ function drawProjectile(projectile)
 	love.graphics.draw(projectile.animation[projectile.currentFrame], projectile.x, projectile.y, projectile.angle, projectile.size, projectile.size)
 
 	if debug then
+		love.graphics.setColor(0, 0, 255, 255)
+		love.graphics.circle("fill", projectile.testX, projectile.testY, 3, 20)
 		love.graphics.setColor(0, 255, 0, 255)
 		projectile.hitbox:draw('line') -- hitbox polygon = green
 		love.graphics.points(calculateProjectileCenter(projectile.x, projectile.y, projectile.angle, projectile.width, projectile.height)) -- blue center

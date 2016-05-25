@@ -303,6 +303,12 @@ function drawPlayer(player)
 end
 
 function updatePlayerState(player, state)
+	if state ~= player.state then
+		if state == 'CASTING' then 
+			player.x = player.x - 1
+		end
+	end
+
 	player.States[player.state].currentFrame = 1
 	player.state = state
 	player.height = player.States[state].animation[1].leftImg:getHeight()
