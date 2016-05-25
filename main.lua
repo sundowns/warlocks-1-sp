@@ -8,6 +8,7 @@ HC = require 'libs/HC'
 
 -- Load callback. Called ONCE initially
 function love.load(arg)
+	require("settings")
 	require("util")
 	require("player")
 	require("spells")
@@ -101,8 +102,6 @@ function love.keypressed(key, scancode, isrepeat)
 	elseif key == "f1" then
 		debug = not debug	
 	elseif key == "f2" then
-		displayNames = not displayNames
-	elseif key == "f3" then
 		updatePlayerState(player1, "STAND")
 		updatePlayerState(player2, "STAND")
 		player1.health = player1.max_health

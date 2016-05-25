@@ -283,8 +283,19 @@ end
 
 function drawPlayer(player)
 	love.graphics.draw(getPlayerImg(player), player.x, player.y, 0, 1.5, 1.5)
-	if displayNames then
-		love.graphics.print(player.name, player.x - player.width, player.y - player.height)
+	if settings.showPlayerNames then
+		local width = player.States['STAND'].animation[1].leftImg:getWidth()*1.5
+		love.graphics.print(player.name, player.x - width*0.75 , player.y - width)
+	end
+
+	if settings.showHealthBars then 
+		local width = player.States['STAND'].animation[1].leftImg:getWidth()*1.5 + 10
+		local currHealth = player.health/player.max_health
+		love.graphics.setColor(255*(1-currHealth), 255*currHealth, 0, 255)
+		love.graphics.rectangle('fill', player.x-5, player.y-7, width*currHealth, 6)
+		love.graphics.setColor(0, 0, 0, 255)
+		love.graphics.rectangle('line', player.x-5, player.y-7, width , 6)
+		resetColour()
 	end
 	if debug then
 		love.graphics.circle("line", player.hitbox:outcircle())
