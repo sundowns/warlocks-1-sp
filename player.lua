@@ -5,8 +5,8 @@ player1 = {
  	height = nil,
  	x_velocity = 0,
  	y_velocity = 0,
- 	base_max_movement_velocity = 130,
- 	max_movement_velocity = 130,
+ 	base_max_movement_velocity = 140,
+ 	max_movement_velocity = 140,
  	movement_friction = 200,
  	base_acceleration = 35,
  	acceleration = 35,
@@ -38,7 +38,8 @@ player2 = {
 	 	height = nil,
 	 	x_velocity = 0,
 	 	y_velocity = 0,
-	 	max_movement_velocity = 130,
+	 	base_max_movement_velocity = 140,
+	 	max_movement_velocity = 140,
 	 	movement_friction = 200,
 	 	acceleration = 35,
 	 	max_health = 100,
@@ -160,7 +161,7 @@ function initPlayer(player)
 	player.height = player.States["STAND"].animation[1].leftImg:getHeight()
 	player.width = player.States["STAND"].animation[1].leftImg:getWidth()
 
-	player.hitbox = HC.circle(player.x + player.width*0.75, player.y + player.height*0.75, player.height*0.8)
+	player.hitbox = HC.circle(player.x + player.width*1.2, player.y + player.height*1.2, player.height*1.05)
 	player.hitbox.owner = player.name
 	player.hitbox.type = "PLAYER"
 end
@@ -265,6 +266,8 @@ function calculatePlayerMovement(player, dt)
 		if player.state == "RUN" then 
 			updatePlayerState(player, "STAND")
 		end
+		player.x_velocity = 0
+		player.y_velocity = 0
 	end
 
 	--Impact velocity - impact friction
@@ -282,21 +285,25 @@ function calculatePlayerMovement(player, dt)
 end
 
 function drawPlayer(player)
-	love.graphics.draw(getPlayerImg(player), player.x, player.y, 0, 1.5, 1.5)
-	if settings.showPlayerNames then
-		local width = player.States['STAND'].animation[1].leftImg:getWidth()*1.5
-		love.graphics.print(player.name, player.x - width*0.75 , player.y - width)
-	end
+	love.graphics.draw(getPlayerImg(player), player.x, player.y, 0, 2, 2)
 
-	if settings.showHealthBars then 
-		local width = player.States['STAND'].animation[1].leftImg:getWidth()*1.5 + 10
-		local currHealth = player.health/player.max_health
-		love.graphics.setColor(255*(1-currHealth), 255*currHealth, 0, 255)
-		love.graphics.rectangle('fill', player.x-5, player.y-7, width*currHealth, 6)
-		love.graphics.setColor(0, 0, 0, 255)
-		love.graphics.rectangle('line', player.x-5, player.y-7, width , 6)
-		resetColour()
+	if player.state ~= 'DEAD' then 
+		if settings.showPlayerNames then
+			local width = player.States['STAND'].animation[1].leftImg:getWidth()*2
+			love.graphics.print(player.name, player.x - width*0.45 , player.y - width*0.7)
+		end
+
+		if settings.showHealthBars then 
+			local width = player.States['STAND'].animation[1].leftImg:getWidth()*2 + 10
+			local currHealth = player.health/player.max_health
+			love.graphics.setColor(255*(1-currHealth), 255*currHealth, 0, 255)
+			love.graphics.rectangle('fill', player.x-5, player.y-7, width*currHealth, 6)
+			love.graphics.setColor(0, 0, 0, 255)
+			love.graphics.rectangle('line', player.x-5, player.y-7, width , 6)
+			resetColour()
+		end
 	end
+	
 	if debug then
 		love.graphics.circle("line", player.hitbox:outcircle())
 	end
@@ -316,7 +323,7 @@ function updatePlayerState(player, state)
 end
 
 function updatePlayerHitbox(player)
-	player.hitbox:moveTo(player.x + player.width*0.75, player.y + player.height*0.75)
+	player.hitbox:moveTo(player.x + player.width, player.y + player.height)
 end
 
 function updatePlayerPosition(player, x, y)

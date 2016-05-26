@@ -11,7 +11,7 @@ function initSpells()
 		timer = 0,
 		ready = true,
 		lifespan = 3, --make this 2?
-		speed = 160,
+		speed = 180,
 		currentFrame = 1,
 		animation = {},
 		max_impulse = 120,
@@ -34,7 +34,7 @@ function initSpells()
 		name = "Sprint",
 		level = 1,
 		archetype = "ENCHANTMENT",
-		cooldown = 4, 
+		cooldown = 10, 
 		ready = true,
 		lifespan = 3, 
 		buff_acceleration = 35,
@@ -80,7 +80,6 @@ function castSpell(player, spell, x, y)
 end
 
 function castSprint(player, spell) 
-	print("X: " ..player.x .. " Y: " .. player.y .. " w: " .. player.width .. ' h: ' .. player.height)
 	local startX = player.x + player.width
 	local startY = player.y + player.height
 	addSpellEffect(spell, startX, startY, spell.lifespan, player.name)
@@ -100,7 +99,6 @@ end
 
 function updateEnchantments(player, dt) 
 	for key, enchantment in pairs(player.active_enchantments) do 
-		print(enchantment.duration)
 		enchantment.duration = math.max(0, enchantment.duration - dt)
 		if enchantment.mode == "ENCHANTMENT" then
 			for i, effect in ipairs(effects) do
@@ -124,40 +122,22 @@ end
 function castLinearProjectile(player, spell, x, y)
 	local startX = player.x + player.width/2
 	local startY = player.y + player.height/2
-	local p_angle = nil
-	local modifierX = 0
-	local modifierY = 0
-	local camX, camY = camera:position()
-
-	--
-	-- TOM NOTICE!!!!!!!!!!!!!!!!!!!!!!!
-	-- It seems to be working in the bottom right quadrant (along the diagonal)
-	-- Try making them bin based on a diagonal X rather than a + like it is currently?
-
-
-	print('cam '.. camX..','..camY) 
-	print('mouse '.. x..','..y)
-	if x < camX and y < camY then
-		p_angle = math.atan2((y - spell.animation[1]:getWidth()/2 - startY), (x - spell.animation[1]:getHeight()/2 - startX))
-		print('top-left')
-	elseif x > camX and y < camY then
-		print('top-right')
-		p_angle = math.atan2((y - spell.animation[1]:getWidth()/2 - startY), (x - spell.animation[1]:getHeight()/2 - startX))
-	elseif x < camX and y > camY then
-		print('bottom-left')
-		p_angle = math.atan2((y - spell.animation[1]:getWidth()/2 - startY), (x - spell.animation[1]:getHeight()/2 - startX))
-	elseif x > camX and y > camY then
-		print('bottom-right')
-		p_angle = math.atan2((y - spell.animation[1]:getWidth()/2 - startY), (x - spell.animation[1]:getHeight()/2 - startX))
+	local p_angle = math.atan2((y  - startY), (x  - startX))
+	local perpendicular = p_angle -1.6 
+	if perpendicular < -3.2 then
+		perpendicular = 3.2
 	end
+	--LEFT QUADRANT SEEMS TO BE OFF, IDK WHY LMAO HAHA
+	local adjustedX = player.x + player.width*0.4 +math.cos(perpendicular) * spell.size * player.modifier_aoe * spell.animation[1]:getWidth()/2
+	local adjustedY = player.y + player.width*0.4 +math.sin(perpendicular) * spell.size * player.modifier_aoe * spell.animation[1]:getWidth()/2
+
 	local p_Dx = spell.speed * math.cos(p_angle)
 	local p_Dy = spell.speed * math.sin(p_angle)
-	local launchX = player.x + player.width*0.5
-	local launchY = player.y + player.width*0.5
+	
 
 	newProjectile = {
-		x = launchX,
-		y = launchY,
+		x = adjustedX,
+		y = adjustedY,
 		dx = p_Dx,
 		dy = p_Dy,
 		angle = p_angle,
@@ -174,10 +154,9 @@ function castLinearProjectile(player, spell, x, y)
 		damage = spell.damage,
 		frameTimer = spell.frameTimer,
 		timeBetweenFrames = spell.timeBetweenFrames,
-		testX = launchX,
-		testY = launchY
+		originX = adjustedX,
+		originY = adjustedY
 	}
-
 	newProjectile.hitbox = HC.polygon(calculateProjectileHitbox(
 		newProjectile.x, newProjectile.y, newProjectile.angle,
 		newProjectile.width, newProjectile.height))
@@ -203,11 +182,12 @@ function updateProjectile(projectile, dt, kill, i)
 end
 
 function drawProjectile(projectile)
+
 	love.graphics.draw(projectile.animation[projectile.currentFrame], projectile.x, projectile.y, projectile.angle, projectile.size, projectile.size)
 
 	if debug then
 		love.graphics.setColor(0, 0, 255, 255)
-		love.graphics.circle("fill", projectile.testX, projectile.testY, 3, 20)
+		love.graphics.circle("fill", projectile.originX, projectile.originY, 3, 20)
 		love.graphics.setColor(0, 255, 0, 255)
 		projectile.hitbox:draw('line') -- hitbox polygon = green
 		love.graphics.points(calculateProjectileCenter(projectile.x, projectile.y, projectile.angle, projectile.width, projectile.height)) -- blue center
@@ -218,8 +198,8 @@ end
 function calculateProjectileHitbox(x1, y1, angle, width, height)
 	local x2 = x1 + (width * math.cos(angle))
 	local y2 = y1 + (width * math.sin(angle))
-	local x3 = x1 + (height * math.cos(angle+1.5)) --idk why +1.5 radians is the perpendicular but hey, it works
-	local y3 = y1 + (height * math.sin(angle+1.5))
+	local x3 = x1 + (height * math.cos(angle+1.6)) --idk why +1.5 radians is the perpendicular but hey, it works
+	local y3 = y1 + (height * math.sin(angle+1.6))
 	local x4 = x3 + (x2 - x1) -- x3 + the difference between x1 and x2
 	local y4 = y3 + (y2 - y1)
 

@@ -1,4 +1,4 @@
-stageSegments = 24
+stageSegments = 120
 
 function drawStage()
 	love.graphics.setColor(245, 245, 220, 180)

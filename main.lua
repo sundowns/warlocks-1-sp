@@ -19,6 +19,7 @@ function love.load(arg)
 	require("spells")
 	require("stage")
 	require("effects")
+	love.mouse.setCursor(love.mouse.newCursor("assets/misc/cursor.png", 0, 0))
 
 	initSpells() -- Load spell data & images
 	initEffects() -- Load effect data & images
@@ -45,7 +46,7 @@ function love.update(dt)
 		
 		updateTimers(dt)
 
-    camera:lookAt(player1.x, player1.y)
+    camera:lookAt(player1.x + player1.width, player1.y + player1.height)
 		
 		--Iterate over projectiles to update TTL
 		for i, projectile in ipairs(projectiles) do
@@ -78,9 +79,7 @@ function love.draw()
 	for i, effect in ipairs(effects) do
 		drawEffect(effect, i)
 	end
-
-	
-
+		
 	for i, player in ipairs(players) do  -- Draw players
 		drawPlayer(player)
 	end
@@ -90,18 +89,25 @@ function love.draw()
 	end
 
 	for i, data in ipairs(textLog) do
-			drawTextData(data, i)
+		drawTextData(data, i)
 	end
 
+	if debug then 
+		love.graphics.circle('fill', drawthatX, drawthatY, 3, 16)
+	end
 
+	if debug then
+		local camX, camY = camera:position()
 
-	love.graphics.circle('fill', drawthatX, drawthatY, 3, 16)
-
+		love.graphics.circle('fill', camX, camY, 2, 16)
+	end
 	camera:detach()
 
 	--Leave this at the end so its on top
 	if (paused) then
-		love.graphics.print("Paused", love.graphics.getWidth()/2 - 20, love.graphics.getHeight()/2 - 15)
+		love.graphics.setColor(255, 0, 0, 255)
+		love.graphics.print("Paused", love.graphics.getWidth()/2 - 20, love.graphics.getHeight()/3)
+		resetColour()
 	end
 end
 -- End Draw
@@ -137,23 +143,16 @@ projectileTargetX = nil
 projectileTargetY = nil
 
 function love.mousepressed(x, y, button, istouch)
-	projectileTargetX = x
-	projectileTargetY = y
+	projectileTargetX, projectileTargetY = camera:worldCoords(love.mouse.getPosition()) 
 end
-
-
 
 function love.mousereleased(x, y, button)
 	if not paused then 
-		local camX, camY = camera:worldCoords(love.mouse.getPosition())
-		
-		local screenX = projectileTargetX + camX - love.graphics.getWidth()/2
-		local screenY = projectileTargetY + camY - love.graphics.getHeight()/2
 		if button == 1 then
 			if player1.state == "CASTING" then
-				drawthatX = x
-				drawthatY = y
-				castSpell(player1, player1.spellbook[player1.selected_spell], screenX, screenY)
+				drawthatX = projectileTargetX
+				drawthatY = projectileTargetY
+				castSpell(player1, player1.spellbook[player1.selected_spell], projectileTargetX, projectileTargetY)
 			end
 		elseif button == 2 then
 			if player1.state == "CASTING" then
