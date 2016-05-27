@@ -19,18 +19,10 @@ function love.load(arg)
 	require("spells")
 	require("stage")
 	require("effects")
-	love.mouse.setCursor(love.mouse.newCursor("assets/misc/cursor.png", 0, 0))
-	love.graphics.setNewFont("assets/misc/IndieFlower.ttf", defaultFontSize)
+	require("init")
 
-	initSpells() -- Load spell data & images
-	initEffects() -- Load effect data & images
-	initPlayer(players["PLAYER_1"])
-	initPlayer(players['PLAYER_2'])
-	initPlayerControls() -- load player1 controlscheme
-
+	initialise()
 	
-	camera = Camera(players['PLAYER_1'].x, players['PLAYER_1'].y)
-
 	players['PLAYER_1'].spellbook['SPELL1'] = spells['FIREBALL']
 	players['PLAYER_1'].spellbook['SPELL2'] = spells['SPRINT']
 end

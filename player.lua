@@ -1,72 +1,71 @@
 players = {}
 
+players["PLAYER_1"] = { 
+	x = 600,
+ 	y = 490,
+ 	width = nil,
+ 	height = nil,
+ 	x_velocity = 0,
+ 	y_velocity = 0,
+ 	base_max_movement_velocity = 140,
+ 	max_movement_velocity = 140,
+ 	movement_friction = 200,
+ 	base_acceleration = 35,
+ 	acceleration = 35,
+ 	max_health = 100,
+ 	health = 100,
+ 	state="STAND",
+ 	orientation="RIGHT",
+ 	selected_spell = "",
+ 	controls = {},
+ 	spellbook = {},
+ 	modifier_aoe = 1,
+ 	modifier_range = 1,
+ 	name = "PLAYER_1",
+ 	colour = "PURPLE",
+ 	States = {},
+ 	hitbox = nil,
+ 	impact_acceleration = 2000,
+ 	x_impact_velocity = 0,
+ 	y_impact_velocity = 0,
+ 	terminal_velocity = 350,
+ 	impact_friction = 80,
+ 	active_enchantments = {},
+ 	alias = "sundowns" -- shouldnt be over ~20 chars
+}
 
-	players["PLAYER_1"] = { 
-		x = 600,
-	 	y = 490,
-	 	width = nil,
-	 	height = nil,
-	 	x_velocity = 0,
-	 	y_velocity = 0,
-	 	base_max_movement_velocity = 140,
-	 	max_movement_velocity = 140,
-	 	movement_friction = 200,
-	 	base_acceleration = 35,
-	 	acceleration = 35,
-	 	max_health = 100,
-	 	health = 100,
-	 	state="STAND",
-	 	orientation="RIGHT",
-	 	selected_spell = "",
-	 	controls = {},
-	 	spellbook = {},
-	 	modifier_aoe = 1,
-	 	modifier_range = 1,
-	 	name = "PLAYER_1",
-	 	colour = "PURPLE",
-	 	States = {},
-	 	hitbox = nil,
-	 	impact_acceleration = 2000,
-	 	x_impact_velocity = 0,
-	 	y_impact_velocity = 0,
-	 	terminal_velocity = 350,
-	 	impact_friction = 80,
-	 	active_enchantments = {},
-	 	alias = "sundowns" -- shouldnt be over ~20 chars
-	}
-
-	players["PLAYER_2"] = { 
-		x = love.graphics.getWidth()/2,
-	 	y = love.graphics.getWidth()/2,
-	 	width = nil,
-	 	height = nil,
-	 	x_velocity = 0,
-	 	y_velocity = 0,
-	 	base_max_movement_velocity = 140,
-	 	max_movement_velocity = 140,
-	 	movement_friction = 200,
-	 	acceleration = 35,
-	 	max_health = 100,
-	 	health = 100,
-	 	state="STAND",
-	 	orientation="RIGHT",
-	 	selected_spell = "",
-	 	controls = {},
-	 	spellbook = {},
-	 	modifier_aoe = 1,
-	 	modifier_range = 1,
-	 	name = "PLAYER_2",
-	 	colour = "GREEN",
-	 	States = {},
-	 	hitbox = nil,
-	 	impact_acceleration = 2000,
-	 	x_impact_velocity = 0,
-	 	y_impact_velocity = 0,
-	 	terminal_velocity = 350,
-	 	impact_friction = 80,
-	 	active_enchantments = {},
-	 	alias = "Swiggy McLongNames" -- shouldnt be over ~20 chars
-	}
+players["PLAYER_2"] = { 
+	x = love.graphics.getWidth()/2,
+ 	y = love.graphics.getWidth()/2,
+ 	width = nil,
+ 	height = nil,
+ 	x_velocity = 0,
+ 	y_velocity = 0,
+ 	base_max_movement_velocity = 140,
+ 	max_movement_velocity = 140,
+ 	movement_friction = 200,
+ 	acceleration = 35,
+ 	max_health = 100,
+ 	health = 100,
+ 	state="STAND",
+ 	orientation="RIGHT",
+ 	selected_spell = "",
+ 	controls = {},
+ 	spellbook = {},
+ 	modifier_aoe = 1,
+ 	modifier_range = 1,
+ 	name = "PLAYER_2",
+ 	colour = "GREEN",
+ 	States = {},
+ 	hitbox = nil,
+ 	impact_acceleration = 2000,
+ 	x_impact_velocity = 0,
+ 	y_impact_velocity = 0,
+ 	terminal_velocity = 350,
+ 	impact_friction = 80,
+ 	active_enchantments = {},
+ 	alias = "Swiggy McLongNames" -- shouldnt be over ~20 chars
+}
 
 skillslots = {'SPELL1', 'SPELL2', 'SPELL3', 'SPELL4', 'SPELL5'}
 
@@ -75,8 +74,9 @@ function projectileHit(playerShape, projectile, dX, dY)
 	local player = players[playerShape.owner]	
 	player.x_impact_velocity = math.clamp(player.x_impact_velocity + math.clamp((-dX*player.impact_acceleration), -projectile.max_impulse, projectile.max_impulse), -player.terminal_velocity, player.terminal_velocity)
 	player.y_impact_velocity = math.clamp(player.y_impact_velocity + math.clamp((-dY*player.impact_acceleration), -projectile.max_impulse, projectile.max_impulse), -player.terminal_velocity, player.terminal_velocity)
-	applyDamage(player, projectile.damage)
-	
+	if player.state ~= 'DEAD' then
+		applyDamage(player, projectile.damage)
+	end
 end
 
 function applyDamage(player, damage)
@@ -90,105 +90,6 @@ function applyDamage(player, damage)
 	end
 end
 
-function initPlayer(player)
-	--STAND
-	player.States["STAND"] = {
-		animation={},
-		currentFrame = 1,
-		timeBetweenFrames = 1000,
-		frameTimer = 1000
-	}
-
-	player.States["STAND"].animation[1] = {
-		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/stand-left.png'),
-		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/stand-right.png'),
-	}
-
-	--RUN
-	player.States["RUN"] = { 
-		animation = {},
-		currentFrame = 1,
-		timeBetweenFrames = 0.15,
-		frameTimer = 0.15
-	}
-	player.States["RUN"].animation[1] = {
-		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-left-1.png'),
-		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-right-1.png')
-	}
-	player.States["RUN"].animation[2] = {
-		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-left-2.png'),
-		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-right-2.png')
-	}
-	player.States["RUN"].animation[3] = {
-		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-left-3.png'),
-		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-right-3.png')
-	}
-	player.States["RUN"].animation[4] = {
-		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-left-4.png'),
-		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-right-4.png')
-	}
-	player.States["RUN"].animation[5] = {
-		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-left-5.png'),
-		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-right-5.png')
-	}
-	player.States["RUN"].animation[6] = {
-		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-left-6.png'),
-		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-right-6.png')
-	}
-
-	--CASTING
-	player.States["CASTING"] = { 
-		animation = {},
-		currentFrame = 1,
-		timeBetweenFrames = 1000,
-		frameTimer = 1000
-	}
-	player.States["CASTING"].animation[1] = {
-		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/cast-left.png'),
-		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/cast-right.png'),
-	}
-
-	--DEAD
-	player.States["DEAD"] = { 
-		animation = {},
-		currentFrame = 1,
-		timeBetweenFrames = 1000,
-		frameTimer = 1000
-	}
-	player.States["DEAD"].animation[1] = {
-		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/dead-left.png'),
-		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/dead-right.png'),
-	}
-
-	player.height = player.States["STAND"].animation[1].leftImg:getHeight()
-	player.width = player.States["STAND"].animation[1].leftImg:getWidth()
-
-	player.hitbox = HC.circle(player.x + player.width*1.2, player.y + player.height*1.2, player.height*1.05)
-	player.hitbox.owner = player.name
-	player.hitbox.type = "PLAYER"
-end
-
-function initPlayerControls()
-	players['PLAYER_1'].controls['RIGHT'] = 'd'
-	players['PLAYER_1'].controls['LEFT'] = 'a'
-	players['PLAYER_1'].controls['UP'] = 'w'
-	players['PLAYER_1'].controls['DOWN'] = 's'
-	players['PLAYER_1'].controls['SPELL1'] = '1'
-	players['PLAYER_1'].controls['SPELL2'] = '2'
-	players['PLAYER_1'].controls['SPELL3'] = '3'
-	players['PLAYER_1'].controls['SPELL4'] = '4'
-	players['PLAYER_1'].controls['SPELL5'] = '5'
-
-	players['PLAYER_2'].controls['RIGHT'] = 'right'
-	players['PLAYER_2'].controls['LEFT'] = 'left'
-	players['PLAYER_2'].controls['UP'] = 'up'
-	players['PLAYER_2'].controls['DOWN'] = 'down'
-	players['PLAYER_2'].controls['SPELL1'] = 'kp1'
-	players['PLAYER_2'].controls['SPELL2'] = 'kp2'
-	players['PLAYER_2'].controls['SPELL3'] = 'kp3'
-	players['PLAYER_2'].controls['SPELL4'] = 'kp4'
-	players['PLAYER_2'].controls['SPELL5'] = 'kp5'
-end
 
 function getPlayerImg(player)
 	local img = nil

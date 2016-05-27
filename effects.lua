@@ -1,27 +1,6 @@
 effects = {}
 textLog = {}
 
-function initEffects()
-	effects["EXPLOSION"] = {
-		name = "Explosion",
-		size = 0.5,
-		animation = {},
-		timeBetweenFrames = 0.05,
-		frameTimer = 0.05,
-	}
-
-	effects["EXPLOSION"].animation[1] = love.graphics.newImage('assets/effects/explosion/1.png')
-	effects["EXPLOSION"].animation[2] = love.graphics.newImage('assets/effects/explosion/2.png')
-	effects["EXPLOSION"].animation[3] = love.graphics.newImage('assets/effects/explosion/3.png')
-	effects["EXPLOSION"].animation[4] = love.graphics.newImage('assets/effects/explosion/4.png')
-	effects["EXPLOSION"].animation[5] = love.graphics.newImage('assets/effects/explosion/5.png')
-	effects["EXPLOSION"].animation[6] = love.graphics.newImage('assets/effects/explosion/6.png')
-	effects["EXPLOSION"].animation[7] = love.graphics.newImage('assets/effects/explosion/7.png')
-	effects["EXPLOSION"].animation[8] = love.graphics.newImage('assets/effects/explosion/8.png')
-	effects["EXPLOSION"].animation[9] = love.graphics.newImage('assets/effects/explosion/9.png')
-	effects["EXPLOSION"].animation[10] = love.graphics.newImage('assets/effects/explosion/10.png')
-end
-
 function addEffect(type, inX, inY)
 	local newEffect = {
 		name = effects[type].name,
