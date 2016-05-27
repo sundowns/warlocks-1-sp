@@ -24,22 +24,22 @@ function love.load(arg)
 
 	initSpells() -- Load spell data & images
 	initEffects() -- Load effect data & images
-	initPlayer(player1)
-	initPlayer(player2)
+	initPlayer(players["PLAYER_1"])
+	initPlayer(players['PLAYER_2'])
 	initPlayerControls() -- load player1 controlscheme
-	table.insert(players, player1)
-	table.insert(players, player2)
-	camera = Camera(player1.x, player1.y)
 
-	player1.spellbook['SPELL1'] = spells['FIREBALL']
-	player1.spellbook['SPELL2'] = spells['SPRINT']
+	
+	camera = Camera(players['PLAYER_1'].x, players['PLAYER_1'].y)
+
+	players['PLAYER_1'].spellbook['SPELL1'] = spells['FIREBALL']
+	players['PLAYER_1'].spellbook['SPELL2'] = spells['SPRINT']
 end
 -- End Load
 
 -- Update callback. Called every frame
 function love.update(dt)
 	if not paused then 
-		for i, player in ipairs(players) do
+		for key, player in pairs(players) do
 			calculatePlayerMovement(player, dt)
 			processInput(player)
 			updateEnchantments(player, dt)
@@ -64,7 +64,7 @@ function love.draw()
 		drawEffect(effect, i)
 	end
 		
-	for i, player in ipairs(players) do  -- Draw players
+	for key, player in pairs(players) do  -- Draw players
 		drawPlayer(player)
 	end
 
@@ -114,12 +114,12 @@ function love.keypressed(key, scancode, isrepeat)
 	elseif key == "f1" then
 		debug = not debug	
 	elseif key == "f2" then
-		updatePlayerState(player1, "STAND")
-		updatePlayerState(player2, "STAND")
-		player1.health = player1.max_health
-		player2.health = player2.max_health
-		updatePlayerPosition(player1, 600, 500)
-		updatePlayerPosition(player2, 600, 600)
+		updatePlayerState(players['PLAYER_1'], "STAND")
+		updatePlayerState(players['PLAYER_2'], "STAND")
+		players['PLAYER_1'].health = players['PLAYER_1'].max_health
+		players['PLAYER_2'].health = players['PLAYER_2'].max_health
+		updatePlayerPosition(players['PLAYER_1'], 600, 500)
+		updatePlayerPosition(players['PLAYER_2'], 600, 600)
 	elseif key == "f5" then
 		os.execute("cls")	
 	elseif key == "esc"then
@@ -137,14 +137,14 @@ end
 function love.mousereleased(x, y, button)
 	if not paused then 
 		if button == 1 then
-			if player1.state == "CASTING" then
+			if players['PLAYER_1'].state == "CASTING" then
 				drawthatX = projectileTargetX
 				drawthatY = projectileTargetY
-				castSpell(player1, player1.spellbook[player1.selected_spell], projectileTargetX, projectileTargetY)
+				castSpell(players['PLAYER_1'], players['PLAYER_1'].spellbook[players['PLAYER_1'].selected_spell], projectileTargetX, projectileTargetY)
 			end
 		elseif button == 2 then
-			if player1.state == "CASTING" then
-				updatePlayerState(player1, "STAND")
+			if players['PLAYER_1'].state == "CASTING" then
+				updatePlayerState(players['PLAYER_1'], "STAND")
 			end
 	 	end
 	end
@@ -152,7 +152,7 @@ end
 
 function updateTimers(dt)
 	--Iterate over players spell calculating new cooldown timer
-	for spell, data in pairs(player1.spellbook) do
+	for spell, data in pairs(players['PLAYER_1'].spellbook) do
 		if not data.ready then 
 			data.timer = math.max(0, data.timer - dt) 
 			if data.timer == 0 then
@@ -165,7 +165,7 @@ function updateTimers(dt)
 		data.timer = math.max(0, data.timer - dt) 		
 	end
 
-	for i, player in ipairs(players) do  -- player animation timer
+	for key, player in pairs(players) do  -- player animation timer
 		player.States[player.state].frameTimer = math.max(0, player.States[player.state].frameTimer - dt)
 		
 		if player.States[player.state].frameTimer <= 0 then 
@@ -219,7 +219,7 @@ end
 function updateCamera()
 	local camX, camY = camera:position()
 	local newX, newY = camX, camY
-	local playerX, playerY = getCenter(player1)
+	local playerX, playerY = getCenter(players['PLAYER_1'])
 	if (playerX > camX + love.graphics.getWidth()*0.15) then
 		newX = playerX - love.graphics.getWidth()*0.15
 	end

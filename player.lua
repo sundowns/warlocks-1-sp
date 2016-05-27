@@ -1,37 +1,41 @@
-player1 = { 
-	x = 600,
- 	y = 490,
- 	width = nil,
- 	height = nil,
- 	x_velocity = 0,
- 	y_velocity = 0,
- 	base_max_movement_velocity = 140,
- 	max_movement_velocity = 140,
- 	movement_friction = 200,
- 	base_acceleration = 35,
- 	acceleration = 35,
- 	max_health = 100,
- 	health = 100,
- 	state="STAND",
- 	orientation="RIGHT",
- 	selected_spell = "",
- 	controls = {},
- 	spellbook = {},
- 	modifier_aoe = 1,
- 	modifier_range = 1,
- 	name = "PLAYER_1",
- 	colour = "PURPLE",
- 	States = {},
- 	hitbox = nil,
- 	impact_acceleration = 2000,
- 	x_impact_velocity = 0,
- 	y_impact_velocity = 0,
- 	terminal_velocity = 350,
- 	impact_friction = 80,
- 	active_enchantments = {}
-}
+players = {}
 
-player2 = { 
+
+	players["PLAYER_1"] = { 
+		x = 600,
+	 	y = 490,
+	 	width = nil,
+	 	height = nil,
+	 	x_velocity = 0,
+	 	y_velocity = 0,
+	 	base_max_movement_velocity = 140,
+	 	max_movement_velocity = 140,
+	 	movement_friction = 200,
+	 	base_acceleration = 35,
+	 	acceleration = 35,
+	 	max_health = 100,
+	 	health = 100,
+	 	state="STAND",
+	 	orientation="RIGHT",
+	 	selected_spell = "",
+	 	controls = {},
+	 	spellbook = {},
+	 	modifier_aoe = 1,
+	 	modifier_range = 1,
+	 	name = "PLAYER_1",
+	 	colour = "PURPLE",
+	 	States = {},
+	 	hitbox = nil,
+	 	impact_acceleration = 2000,
+	 	x_impact_velocity = 0,
+	 	y_impact_velocity = 0,
+	 	terminal_velocity = 350,
+	 	impact_friction = 80,
+	 	active_enchantments = {},
+	 	alias = "sundowns" -- shouldnt be over ~20 chars
+	}
+
+	players["PLAYER_2"] = { 
 		x = love.graphics.getWidth()/2,
 	 	y = love.graphics.getWidth()/2,
 	 	width = nil,
@@ -60,21 +64,19 @@ player2 = {
 	 	y_impact_velocity = 0,
 	 	terminal_velocity = 350,
 	 	impact_friction = 80,
-	 	active_enchantments = {}
+	 	active_enchantments = {},
+	 	alias = "Swiggy McLongNames" -- shouldnt be over ~20 chars
 	}
 
-players = {}
 skillslots = {'SPELL1', 'SPELL2', 'SPELL3', 'SPELL4', 'SPELL5'}
 
 --check id dX,dY or right, some reason it aint moving haha idk
 function projectileHit(playerShape, projectile, dX, dY)
-	for i, player in ipairs(players) do
-		if playerShape.owner == player.name then 
-			player.x_impact_velocity = math.clamp(player.x_impact_velocity + math.clamp((-dX*player.impact_acceleration), -projectile.max_impulse, projectile.max_impulse), -player.terminal_velocity, player.terminal_velocity)
-			player.y_impact_velocity = math.clamp(player.y_impact_velocity + math.clamp((-dY*player.impact_acceleration), -projectile.max_impulse, projectile.max_impulse), -player.terminal_velocity, player.terminal_velocity)
-			applyDamage(player, projectile.damage)
-		end 
-	end
+	local player = players[playerShape.owner]	
+	player.x_impact_velocity = math.clamp(player.x_impact_velocity + math.clamp((-dX*player.impact_acceleration), -projectile.max_impulse, projectile.max_impulse), -player.terminal_velocity, player.terminal_velocity)
+	player.y_impact_velocity = math.clamp(player.y_impact_velocity + math.clamp((-dY*player.impact_acceleration), -projectile.max_impulse, projectile.max_impulse), -player.terminal_velocity, player.terminal_velocity)
+	applyDamage(player, projectile.damage)
+	
 end
 
 function applyDamage(player, damage)
@@ -167,25 +169,25 @@ function initPlayer(player)
 end
 
 function initPlayerControls()
-	player1.controls['RIGHT'] = 'd'
-	player1.controls['LEFT'] = 'a'
-	player1.controls['UP'] = 'w'
-	player1.controls['DOWN'] = 's'
-	player1.controls['SPELL1'] = '1'
-	player1.controls['SPELL2'] = '2'
-	player1.controls['SPELL3'] = '3'
-	player1.controls['SPELL4'] = '4'
-	player1.controls['SPELL5'] = '5'
+	players['PLAYER_1'].controls['RIGHT'] = 'd'
+	players['PLAYER_1'].controls['LEFT'] = 'a'
+	players['PLAYER_1'].controls['UP'] = 'w'
+	players['PLAYER_1'].controls['DOWN'] = 's'
+	players['PLAYER_1'].controls['SPELL1'] = '1'
+	players['PLAYER_1'].controls['SPELL2'] = '2'
+	players['PLAYER_1'].controls['SPELL3'] = '3'
+	players['PLAYER_1'].controls['SPELL4'] = '4'
+	players['PLAYER_1'].controls['SPELL5'] = '5'
 
-	player2.controls['RIGHT'] = 'right'
-	player2.controls['LEFT'] = 'left'
-	player2.controls['UP'] = 'up'
-	player2.controls['DOWN'] = 'down'
-	player2.controls['SPELL1'] = 'kp1'
-	player2.controls['SPELL2'] = 'kp2'
-	player2.controls['SPELL3'] = 'kp3'
-	player2.controls['SPELL4'] = 'kp4'
-	player2.controls['SPELL5'] = 'kp5'
+	players['PLAYER_2'].controls['RIGHT'] = 'right'
+	players['PLAYER_2'].controls['LEFT'] = 'left'
+	players['PLAYER_2'].controls['UP'] = 'up'
+	players['PLAYER_2'].controls['DOWN'] = 'down'
+	players['PLAYER_2'].controls['SPELL1'] = 'kp1'
+	players['PLAYER_2'].controls['SPELL2'] = 'kp2'
+	players['PLAYER_2'].controls['SPELL3'] = 'kp3'
+	players['PLAYER_2'].controls['SPELL4'] = 'kp4'
+	players['PLAYER_2'].controls['SPELL5'] = 'kp5'
 end
 
 function getPlayerImg(player)
@@ -317,7 +319,9 @@ function drawPlayer(player)
 	if player.state ~= 'DEAD' then 
 		if settings.showPlayerNames then
 			local width = player.States['STAND'].animation[1].leftImg:getWidth()*2
-			love.graphics.print(player.name, player.x - width*0.45 , player.y - width*0.9)
+			love.graphics.setColor(255, 255, 0, 255)
+			love.graphics.printf(player.alias, player.x - 60 , player.y - width*1.1, 150, 'center')
+			resetColour()
 		end
 
 		if settings.showHealthBars then 
