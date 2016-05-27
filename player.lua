@@ -22,7 +22,7 @@ players["PLAYER_1"] = {
  	modifier_aoe = 1,
  	modifier_range = 1,
  	name = "PLAYER_1",
- 	colour = "PURPLE",
+ 	colour = "RED",
  	States = {},
  	hitbox = nil,
  	impact_acceleration = 2000,
@@ -31,7 +31,8 @@ players["PLAYER_1"] = {
  	terminal_velocity = 350,
  	impact_friction = 80,
  	active_enchantments = {},
- 	alias = "sundowns" -- shouldnt be over ~20 chars
+ 	alias = "sundowns", -- shouldnt be over ~20 chars
+ 	userControlled = true
 }
 
 players["PLAYER_2"] = { 
@@ -64,27 +65,62 @@ players["PLAYER_2"] = {
  	terminal_velocity = 350,
  	impact_friction = 80,
  	active_enchantments = {},
- 	alias = "Swiggy McLongNames" -- shouldnt be over ~20 chars
+ 	alias = "Swiggy McLongNames", -- shouldnt be over ~20 chars
+ 	userControlled = false
+}
+
+players["PLAYER_3"] = { 
+	x = love.graphics.getWidth()/2 + 30,
+ 	y = love.graphics.getWidth()/2,
+ 	width = nil,
+ 	height = nil,
+ 	x_velocity = 0,
+ 	y_velocity = 0,
+ 	base_max_movement_velocity = 140,
+ 	max_movement_velocity = 140,
+ 	movement_friction = 200,
+ 	acceleration = 35,
+ 	max_health = 100,
+ 	health = 100,
+ 	state="STAND",
+ 	orientation="RIGHT",
+ 	selected_spell = "",
+ 	controls = {},
+ 	spellbook = {},
+ 	modifier_aoe = 1,
+ 	modifier_range = 1,
+ 	name = "PLAYER_3",
+ 	colour = "PURPLE",
+ 	States = {},
+ 	hitbox = nil,
+ 	impact_acceleration = 2000,
+ 	x_impact_velocity = 0,
+ 	y_impact_velocity = 0,
+ 	terminal_velocity = 350,
+ 	impact_friction = 80,
+ 	active_enchantments = {},
+ 	alias = "New Red Guy", -- shouldnt be over ~20 chars
+ 	userControlled = false
 }
 
 skillslots = {'SPELL1', 'SPELL2', 'SPELL3', 'SPELL4', 'SPELL5'}
 
 --check id dX,dY or right, some reason it aint moving haha idk
-function projectileHit(playerShape, projectile, dX, dY)
-	local player = players[playerShape.owner]	
-	player.x_impact_velocity = math.clamp(player.x_impact_velocity + math.clamp((-dX*player.impact_acceleration), -projectile.max_impulse, projectile.max_impulse), -player.terminal_velocity, player.terminal_velocity)
-	player.y_impact_velocity = math.clamp(player.y_impact_velocity + math.clamp((-dY*player.impact_acceleration), -projectile.max_impulse, projectile.max_impulse), -player.terminal_velocity, player.terminal_velocity)
+function entityHit(owner, entity, dX, dY)
+	local player = players[owner]	
+	if entity.spell.name == "Fireball" then
+ 		player.x_impact_velocity = math.clamp(player.x_impact_velocity + math.clamp((-dX*player.impact_acceleration), -entity.max_impulse, entity.max_impulse), -player.terminal_velocity, player.terminal_velocity)
+		player.y_impact_velocity = math.clamp(player.y_impact_velocity + math.clamp((-dY*player.impact_acceleration), -entity.max_impulse, entity.max_impulse), -player.terminal_velocity, player.terminal_velocity)
+	end
+	
 	if player.state ~= 'DEAD' then
-		applyDamage(player, projectile.damage)
+		applyDamage(player, entity.damage)
 	end
 end
 
 function applyDamage(player, damage)
 	addTextData(damage, player.x, player.y, 4, "DAMAGE")
 	player.health = math.max(0, player.health - damage)
-	if debug then
-		print(player.name .. "'s HP: " .. player.health)
-	end
 	if player.health <= 0 then
 		player.state = "DEAD"
 	end
@@ -122,7 +158,7 @@ function processInput(player)
 			if player.spellbook[skillslots[i]] ~= nil then 
 				if player.spellbook[skillslots[i]].ready then
 					player.selected_spell = skillslots[i] 
-					if player.spellbook[skillslots[i]].archetype == "PROJECTILE" then
+					if player.spellbook[skillslots[i]].archetype == "PROJECTILE" or player.spellbook[skillslots[i]].archetype == "ENTITYSPAWN" then
 						updatePlayerState(player, "CASTING")
 					elseif player.spellbook[skillslots[i]].archetype == "ENCHANTMENT" then
 						if player.state == "STAND" or player.state == "RUN" then

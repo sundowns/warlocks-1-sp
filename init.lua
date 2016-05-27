@@ -3,6 +3,7 @@ function initialise()
 	love.graphics.setNewFont("assets/misc/IndieFlower.ttf", defaultFontSize)
 	initSpells() 
 	initEffects() 
+	initEntities()
 	for key, player in pairs(players) do
 		initPlayer(player)
 	end
@@ -31,6 +32,16 @@ function initPlayerControls()
 	players['PLAYER_2'].controls['SPELL3'] = 'kp3'
 	players['PLAYER_2'].controls['SPELL4'] = 'kp4'
 	players['PLAYER_2'].controls['SPELL5'] = 'kp5'
+
+	players['PLAYER_3'].controls['RIGHT'] = 'right'
+	players['PLAYER_3'].controls['LEFT'] = 'left'
+	players['PLAYER_3'].controls['UP'] = 'up'
+	players['PLAYER_3'].controls['DOWN'] = 'down'
+	players['PLAYER_3'].controls['SPELL1'] = 'kp1'
+	players['PLAYER_3'].controls['SPELL2'] = 'kp2'
+	players['PLAYER_3'].controls['SPELL3'] = 'kp3'
+	players['PLAYER_3'].controls['SPELL4'] = 'kp4'
+	players['PLAYER_3'].controls['SPELL5'] = 'kp5'
 end
 
 
@@ -126,10 +137,11 @@ function initSpells()
 		currentFrame = 1,
 		animation = {},
 		max_impulse = 120,
-		damage = 25, --make this 8?
+		damage = 8, --make this 8?
 		timeBetweenFrames = 0.1,
 		frameTimer = 0.1,
-		size = 0.15
+		size = 0.15,
+		radius = 30,
 	}
 
 	spells["FIREBALL"].animation[1] = love.graphics.newImage('assets/spells/fireball/1.png')
@@ -173,6 +185,64 @@ function initSpells()
 	spells["SPRINT"].animation[14]= love.graphics.newImage('assets/spells/sprint/14.png')
 	spells["SPRINT"].animation[15]= love.graphics.newImage('assets/spells/sprint/15.png')
 	spells["SPRINT"].animation[16]= love.graphics.newImage('assets/spells/sprint/16.png')
+
+
+	spells["FISSURE"] = {
+		name = "Fissure",
+		level = 1,
+		archetype = "ENTITYSPAWN",
+		cooldown = 1, --make this 8?
+		timer = 0,
+		ready = true,
+		speed = 180,
+		currentFrame = 1,
+		animation = {
+			charging = {},
+			attack = {}
+		},
+		max_impulse = 200,
+		damage = 16, --make this 8?
+		timeBetweenFrames = 0.18,
+		frameTimer = 0.18,
+		size = 0.15,
+		radius = 30,
+		active = false,
+		chargingTime = 3,
+		activeTimer = 1.8,
+		attackAnimationLength = 11,
+		chargingAnimationLength = 30
+	}
+
+	spells["FISSURE"].animation[1] = { charging = love.graphics.newImage('assets/spells/fissure/1.png'), attack = love.graphics.newImage('assets/spells/fissure/1-attack.png')  } 
+	spells["FISSURE"].animation[2] = { charging = love.graphics.newImage('assets/spells/fissure/2.png'), attack = love.graphics.newImage('assets/spells/fissure/2-attack.png') } 
+	spells["FISSURE"].animation[3] = { charging = love.graphics.newImage('assets/spells/fissure/3.png'), attack = love.graphics.newImage('assets/spells/fissure/3-attack.png') } 
+	spells["FISSURE"].animation[4] = { charging = love.graphics.newImage('assets/spells/fissure/4.png'), attack = love.graphics.newImage('assets/spells/fissure/4-attack.png') } 
+	spells["FISSURE"].animation[5] = { charging = love.graphics.newImage('assets/spells/fissure/5.png'), attack = love.graphics.newImage('assets/spells/fissure/5-attack.png') } 
+	spells["FISSURE"].animation[6] = { charging = love.graphics.newImage('assets/spells/fissure/6.png'), attack = love.graphics.newImage('assets/spells/fissure/6-attack.png') } 
+	spells["FISSURE"].animation[7] = { charging = love.graphics.newImage('assets/spells/fissure/7.png'), attack = love.graphics.newImage('assets/spells/fissure/7-attack.png') } 
+	spells["FISSURE"].animation[8] = { charging = love.graphics.newImage('assets/spells/fissure/8.png'), attack = love.graphics.newImage('assets/spells/fissure/8-attack.png') } 
+	spells["FISSURE"].animation[9] = { charging = love.graphics.newImage('assets/spells/fissure/9.png'), attack = love.graphics.newImage('assets/spells/fissure/9-attack.png') } 
+	spells["FISSURE"].animation[10] = { charging = love.graphics.newImage('assets/spells/fissure/10.png'), attack = love.graphics.newImage('assets/spells/fissure/10-attack.png') } 
+	spells["FISSURE"].animation[11] = { charging = love.graphics.newImage('assets/spells/fissure/11.png'), attack = love.graphics.newImage('assets/spells/fissure/11-attack.png') } 
+	spells["FISSURE"].animation[12] = { charging = love.graphics.newImage('assets/spells/fissure/12.png') } 
+	spells["FISSURE"].animation[13] = { charging = love.graphics.newImage('assets/spells/fissure/13.png') } 
+	spells["FISSURE"].animation[14] = { charging = love.graphics.newImage('assets/spells/fissure/14.png') } 
+	spells["FISSURE"].animation[15] = { charging = love.graphics.newImage('assets/spells/fissure/15.png') } 
+	spells["FISSURE"].animation[16] = { charging = love.graphics.newImage('assets/spells/fissure/16.png') } 
+	spells["FISSURE"].animation[17] = { charging = love.graphics.newImage('assets/spells/fissure/17.png') } 
+	spells["FISSURE"].animation[18] = { charging = love.graphics.newImage('assets/spells/fissure/18.png') } 
+	spells["FISSURE"].animation[19] = { charging = love.graphics.newImage('assets/spells/fissure/19.png') } 
+	spells["FISSURE"].animation[20] = { charging = love.graphics.newImage('assets/spells/fissure/20.png') } 
+	spells["FISSURE"].animation[21] = { charging = love.graphics.newImage('assets/spells/fissure/21.png') } 
+	spells["FISSURE"].animation[22] = { charging = love.graphics.newImage('assets/spells/fissure/22.png') } 
+	spells["FISSURE"].animation[23] = { charging = love.graphics.newImage('assets/spells/fissure/23.png') } 
+	spells["FISSURE"].animation[24] = { charging = love.graphics.newImage('assets/spells/fissure/24.png') } 
+	spells["FISSURE"].animation[25] = { charging = love.graphics.newImage('assets/spells/fissure/25.png') } 
+	spells["FISSURE"].animation[26] = { charging = love.graphics.newImage('assets/spells/fissure/26.png') } 
+	spells["FISSURE"].animation[27] = { charging = love.graphics.newImage('assets/spells/fissure/27.png') } 
+	spells["FISSURE"].animation[28] = { charging = love.graphics.newImage('assets/spells/fissure/28.png') } 
+	spells["FISSURE"].animation[29] = { charging = love.graphics.newImage('assets/spells/fissure/29.png') } 
+	spells["FISSURE"].animation[30] = { charging = love.graphics.newImage('assets/spells/fissure/30.png') } 
 end
 
 function initEffects()
@@ -194,4 +264,21 @@ function initEffects()
 	effects["EXPLOSION"].animation[8] = love.graphics.newImage('assets/effects/explosion/8.png')
 	effects["EXPLOSION"].animation[9] = love.graphics.newImage('assets/effects/explosion/9.png')
 	effects["EXPLOSION"].animation[10] = love.graphics.newImage('assets/effects/explosion/10.png')
+end
+
+function initEntities() 
+	entities['FIREBALL_BLAST'] = {
+		name = "Fireball Blast",
+		x = nil,
+		y = nil,
+		radius = nil,
+		damage = nil,
+		spell = nil,
+		duration = nil,
+		timetolive = nil,
+		animation = {},
+		timeBetweenFrames = 0.05,
+		frameTimer = 0.05,
+		owner = nil
+	}
 end

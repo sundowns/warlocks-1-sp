@@ -12,6 +12,11 @@ function castSpell(player, spell, x, y)
 			if spell.name == "Sprint" then 
 				castSprint(player, spell)
 			end
+		elseif spell.archetype == "ENTITYSPAWN" then
+			if spell.name == "Fissure" then
+				castFissure(player, spell, x, y)		
+			end
+			updatePlayerState(player, "STAND")
 		end
 	end
 end
@@ -32,6 +37,11 @@ function castSprint(player, spell)
 	player.acceleration = player.acceleration + spell.buff_acceleration
 	spell.ready = false
 	spell.timer = spell.cooldown
+end
+
+function castFissure(player, spell, x, y)
+	--calculate a point along the line between the player & xy that is the spell's range away from the player
+	spawnEntity(spell, player.name, x, y)
 end
 
 function updateEnchantments(player, dt) 
@@ -71,7 +81,6 @@ function castLinearProjectile(player, spell, x, y)
 	local p_Dx = spell.speed * math.cos(p_angle)
 	local p_Dy = spell.speed * math.sin(p_angle)
 	
-
 	newProjectile = {
 		x = adjustedX,
 		y = adjustedY,
@@ -87,13 +96,13 @@ function castLinearProjectile(player, spell, x, y)
 		hitbox = nil,
 		width = spell.size * player.modifier_aoe * spell.animation[1]:getWidth(),
 		height = spell.size * player.modifier_aoe * spell.animation[1]:getHeight(),
-		max_impulse = spell.max_impulse,
-		damage = spell.damage,
 		frameTimer = spell.frameTimer,
 		timeBetweenFrames = spell.timeBetweenFrames,
 		originX = adjustedX,
-		originY = adjustedY
+		originY = adjustedY,
+		spell = spell 
 	}
+
 	newProjectile.hitbox = HC.polygon(calculateProjectileHitbox(
 		newProjectile.x, newProjectile.y, newProjectile.angle,
 		newProjectile.width, newProjectile.height))
@@ -109,7 +118,7 @@ end
 function updateProjectile(projectile, dt, kill, i)
 	projectile.time_to_live = math.max(0, projectile.time_to_live - dt)
 	if projectile.time_to_live == 0 or kill then
-		destroy(projectile, i)
+		destroyProjectile(projectile, i)
 	else 
 		projectile.x = projectile.x + (projectile.dx * dt)
 		projectile.y = projectile.y + (projectile.dy * dt)
@@ -152,7 +161,7 @@ function calculateProjectileCenter(x, y, angle, width, height)
 	return centroidX, centroidY
 end
 
-function destroy(projectile, i)
+function destroyProjectile(projectile, i)
 	HC.remove(projectile.hitbox) 
 	table.remove(projectiles, i)
 end
@@ -168,13 +177,13 @@ end
 function handleProjectileCollision(projectile)
 	local kill = false
 	for shape, delta in pairs(HC.collisions(projectile.hitbox)) do
-		if projectile.hitbox.owner ~= shape.owner then
-			if shape.type == "PLAYER" then 
-				addEffect("EXPLOSION", shape:center())
-				projectileHit(shape, projectile, delta.x, delta.y)
-				kill = true
-			end
-		end  	
+		if projectile.owner ~= shape.owner then
+			addEffect("EXPLOSION", shape:center())
+			local x, y = shape:center()
+			spawnEntity(projectile.spell, projectile.owner, x, y, delta.x, delta.y) 	
+			kill = true
+		end
 	end
 	return kill
 end
+
