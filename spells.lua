@@ -7,10 +7,10 @@ function initSpells()
 		name = "Fireball",
 		level = 1,
 		archetype = "PROJECTILE",
-		cooldown = 1, --make this 8?
+		cooldown = 8, --make this 8?
 		timer = 0,
 		ready = true,
-		lifespan = 3, --make this 2?
+		lifespan = 2, --make this 2?
 		speed = 180,
 		currentFrame = 1,
 		animation = {},
@@ -218,4 +218,26 @@ end
 function destroy(projectile, i)
 	HC.remove(projectile.hitbox) 
 	table.remove(projectiles, i)
+end
+
+function updateProjectiles(dt)
+	for i, projectile in ipairs(projectiles) do
+		local kill = handleProjectileCollision(projectile)
+		updateProjectile(projectile, dt, kill, i)
+	end
+end
+
+--Projectiles colliding with enemies or enemy projectiles should deal damage/knockback all players within a radius
+function handleProjectileCollision(projectile)
+	local kill = false
+	for shape, delta in pairs(HC.collisions(projectile.hitbox)) do
+		if projectile.hitbox.owner ~= shape.owner then
+			if shape.type == "PLAYER" then 
+				addEffect("EXPLOSION", shape:center())
+				projectileHit(shape, projectile, delta.x, delta.y)
+				kill = true
+			end
+		end  	
+	end
+	return kill
 end

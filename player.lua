@@ -331,3 +331,7 @@ function updatePlayerPosition(player, x, y)
 	player.y = y
 	updatePlayerHitbox(player)
 end
+
+function getCenter(player)
+	return player.x + player.width/2, player.y + player.height/2
+end

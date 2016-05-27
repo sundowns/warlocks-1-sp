@@ -43,29 +43,12 @@ function love.update(dt)
 			processInput(player)
 			updateEnchantments(player, dt)
 		end
-		
+			
 		updateTimers(dt)
 
-    camera:lookAt(player1.x + player1.width, player1.y + player1.height)
-		
-		--Iterate over projectiles to update TTL
-		for i, projectile in ipairs(projectiles) do
-			--print(#projectiles	)
-			local kill = false
-			for shape, delta in pairs(HC.collisions(projectile.hitbox)) do
-				if projectile.hitbox.owner ~= shape.owner then
-					if shape.type == "PLAYER" then
-						addEffect("EXPLOSION", shape:center())
-						projectileHit(shape, projectile, delta.x, delta.y)
-						kill = true
-					end
-				end  	
-  		end
-			updateProjectile(projectile, dt, kill, i)
-		end
-
-
-
+		updateCamera()
+			
+		updateProjectiles(dt)
 	end
 end
 -- End update
@@ -98,8 +81,10 @@ function love.draw()
 
 	if debug then
 		local camX, camY = camera:position()
-
+		love.graphics.setColor(255, 0, 0, 255)
 		love.graphics.circle('fill', camX, camY, 2, 16)
+		love.graphics.rectangle('line', camX - love.graphics.getWidth()*0.1, camY - love.graphics.getHeight()*0.1, 0.2*love.graphics.getWidth(), 0.2*love.graphics.getHeight())
+		resetColour()
 	end
 	camera:detach()
 
@@ -226,4 +211,24 @@ function updateTimers(dt)
 			end
 		end
 	end
+end
+
+function updateCamera()
+	local camX, camY = camera:position()
+	local newX, newY = camX, camY
+	local playerX, playerY = getCenter(player1)
+	if (playerX > camX + love.graphics.getWidth()*0.1) then
+		newX = playerX - love.graphics.getWidth()*0.1
+	end
+	if (playerX < camX - love.graphics.getWidth()*0.1) then
+		newX = playerX + love.graphics.getWidth()*0.1
+	end
+	if (playerY > camY + love.graphics.getHeight()*0.1) then
+		newY = playerY - love.graphics.getHeight()*0.1
+	end
+	if (playerY < camY - love.graphics.getHeight()*0.1) then
+		newY = playerY + love.graphics.getHeight()*0.1
+	end
+
+	camera:lookAt(newX, newY)
 end
