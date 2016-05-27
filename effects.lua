@@ -67,8 +67,10 @@ end
 
 function addTextData(inText, inX, inY, inDuration, dataType)
 	local red, green, blue = 255, 255, 255
+	local fontSize = defaultFontSize
 	if dataType == "DAMAGE" then
 		red, green, blue = 255, 0, 0
+		fontSize = 32
 	end
 
 	local data = {
@@ -78,7 +80,8 @@ function addTextData(inText, inX, inY, inDuration, dataType)
 		r = red,
 		g = green,
 		b = blue,
-		timer = inDuration
+		timer = inDuration, 
+		fontSize = fontSize
 	}
 	table.insert(textLog, data)
 end
@@ -92,9 +95,11 @@ function drawTextData(data, i)
 				if data.timer < 3 then 
 					alpha = 255*(data.timer/3)
 				end
+				setFontSize(data.fontSize)
 				love.graphics.setColor(data.r, data.g, data.b, alpha)
 				love.graphics.print(data.text, data.x, data.y)
 				resetColour()
+				resetFont()
 			end
 	end
 end

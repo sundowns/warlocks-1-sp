@@ -20,6 +20,7 @@ function love.load(arg)
 	require("stage")
 	require("effects")
 	love.mouse.setCursor(love.mouse.newCursor("assets/misc/cursor.png", 0, 0))
+	love.graphics.setNewFont("assets/misc/IndieFlower.ttf", defaultFontSize)
 
 	initSpells() -- Load spell data & images
 	initEffects() -- Load effect data & images
@@ -83,7 +84,7 @@ function love.draw()
 		local camX, camY = camera:position()
 		love.graphics.setColor(255, 0, 0, 255)
 		love.graphics.circle('fill', camX, camY, 2, 16)
-		love.graphics.rectangle('line', camX - love.graphics.getWidth()*0.1, camY - love.graphics.getHeight()*0.1, 0.2*love.graphics.getWidth(), 0.2*love.graphics.getHeight())
+		love.graphics.rectangle('line', camX - love.graphics.getWidth()*0.15, camY - love.graphics.getHeight()*0.1, 0.3*love.graphics.getWidth(), 0.2*love.graphics.getHeight())
 		resetColour()
 	end
 	camera:detach()
@@ -91,8 +92,10 @@ function love.draw()
 	--Leave this at the end so its on top
 	if (paused) then
 		love.graphics.setColor(255, 0, 0, 255)
-		love.graphics.print("Paused", love.graphics.getWidth()/2 - 20, love.graphics.getHeight()/3)
+		setFontSize(32)
+		love.graphics.print("Paused", love.graphics.getWidth()/2 - 45, love.graphics.getHeight()/3)
 		resetColour()
+		resetFont()
 	end
 end
 -- End Draw
@@ -217,11 +220,11 @@ function updateCamera()
 	local camX, camY = camera:position()
 	local newX, newY = camX, camY
 	local playerX, playerY = getCenter(player1)
-	if (playerX > camX + love.graphics.getWidth()*0.1) then
-		newX = playerX - love.graphics.getWidth()*0.1
+	if (playerX > camX + love.graphics.getWidth()*0.15) then
+		newX = playerX - love.graphics.getWidth()*0.15
 	end
-	if (playerX < camX - love.graphics.getWidth()*0.1) then
-		newX = playerX + love.graphics.getWidth()*0.1
+	if (playerX < camX - love.graphics.getWidth()*0.15) then
+		newX = playerX + love.graphics.getWidth()*0.15
 	end
 	if (playerY > camY + love.graphics.getHeight()*0.1) then
 		newY = playerY - love.graphics.getHeight()*0.1

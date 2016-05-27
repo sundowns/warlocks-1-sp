@@ -284,31 +284,6 @@ function calculatePlayerMovement(player, dt)
 	end
 end
 
-function drawPlayer(player)
-	love.graphics.draw(getPlayerImg(player), player.x, player.y, 0, 2, 2)
-
-	if player.state ~= 'DEAD' then 
-		if settings.showPlayerNames then
-			local width = player.States['STAND'].animation[1].leftImg:getWidth()*2
-			love.graphics.print(player.name, player.x - width*0.45 , player.y - width*0.7)
-		end
-
-		if settings.showHealthBars then 
-			local width = player.States['STAND'].animation[1].leftImg:getWidth()*2 + 10
-			local currHealth = player.health/player.max_health
-			love.graphics.setColor(255*(1-currHealth), 255*currHealth, 0, 255)
-			love.graphics.rectangle('fill', player.x-5, player.y-7, width*currHealth, 6)
-			love.graphics.setColor(0, 0, 0, 255)
-			love.graphics.rectangle('line', player.x-5, player.y-7, width , 6)
-			resetColour()
-		end
-	end
-	
-	if debug then
-		love.graphics.circle("line", player.hitbox:outcircle())
-	end
-end
-
 function updatePlayerState(player, state)
 	if state ~= player.state then
 		if state == 'CASTING' then 
@@ -334,4 +309,29 @@ end
 
 function getCenter(player)
 	return player.x + player.width/2, player.y + player.height/2
+end
+
+function drawPlayer(player)
+	love.graphics.draw(getPlayerImg(player), player.x, player.y, 0, 2, 2)
+
+	if player.state ~= 'DEAD' then 
+		if settings.showPlayerNames then
+			local width = player.States['STAND'].animation[1].leftImg:getWidth()*2
+			love.graphics.print(player.name, player.x - width*0.45 , player.y - width*0.9)
+		end
+
+		if settings.showHealthBars then 
+			local width = player.States['STAND'].animation[1].leftImg:getWidth()*2 + 10
+			local currHealth = player.health/player.max_health
+			love.graphics.setColor(255*(1-currHealth), 255*currHealth, 0, 255)
+			love.graphics.rectangle('fill', player.x-5, player.y-7, width*currHealth, 6)
+			love.graphics.setColor(0, 0, 0, 255)
+			love.graphics.rectangle('line', player.x-5, player.y-7, width , 6)
+			resetColour()
+		end
+	end
+	
+	if debug then
+		love.graphics.circle("line", player.hitbox:outcircle())
+	end
 end
