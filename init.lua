@@ -191,7 +191,7 @@ function initSpells()
 		name = "Fissure",
 		level = 1,
 		archetype = "ENTITYSPAWN",
-		cooldown = 1, --make this 8?
+		cooldown = 0.1,
 		timer = 0,
 		ready = true,
 		speed = 180,
@@ -201,16 +201,18 @@ function initSpells()
 			attack = {}
 		},
 		max_impulse = 200,
-		damage = 16, --make this 8?
-		timeBetweenFrames = 0.18,
+		damage = 16, 
+		timeBetweenFramesCharging = 0.155,
+		timeBetweenFramesActive = 0.12,
 		frameTimer = 0.18,
 		size = 0.15,
 		radius = 30,
 		active = false,
 		chargingTime = 3,
-		activeTimer = 1.8,
+		activeTimer = 1,
 		attackAnimationLength = 11,
-		chargingAnimationLength = 30
+		attackAnimationTimer = 0.12*11,
+		chargingAnimationLength = 21
 	}
 
 	spells["FISSURE"].animation[1] = { charging = love.graphics.newImage('assets/spells/fissure/1.png'), attack = love.graphics.newImage('assets/spells/fissure/1-attack.png')  } 
@@ -234,15 +236,7 @@ function initSpells()
 	spells["FISSURE"].animation[19] = { charging = love.graphics.newImage('assets/spells/fissure/19.png') } 
 	spells["FISSURE"].animation[20] = { charging = love.graphics.newImage('assets/spells/fissure/20.png') } 
 	spells["FISSURE"].animation[21] = { charging = love.graphics.newImage('assets/spells/fissure/21.png') } 
-	spells["FISSURE"].animation[22] = { charging = love.graphics.newImage('assets/spells/fissure/22.png') } 
-	spells["FISSURE"].animation[23] = { charging = love.graphics.newImage('assets/spells/fissure/23.png') } 
-	spells["FISSURE"].animation[24] = { charging = love.graphics.newImage('assets/spells/fissure/24.png') } 
-	spells["FISSURE"].animation[25] = { charging = love.graphics.newImage('assets/spells/fissure/25.png') } 
-	spells["FISSURE"].animation[26] = { charging = love.graphics.newImage('assets/spells/fissure/26.png') } 
-	spells["FISSURE"].animation[27] = { charging = love.graphics.newImage('assets/spells/fissure/27.png') } 
-	spells["FISSURE"].animation[28] = { charging = love.graphics.newImage('assets/spells/fissure/28.png') } 
-	spells["FISSURE"].animation[29] = { charging = love.graphics.newImage('assets/spells/fissure/29.png') } 
-	spells["FISSURE"].animation[30] = { charging = love.graphics.newImage('assets/spells/fissure/30.png') } 
+	
 end
 
 function initEffects()

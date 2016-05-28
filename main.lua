@@ -59,19 +59,17 @@ function love.draw()
 	camera:attach()
 
 	drawStage() -- Draw our stage
-	
-	
 
 	for i, effect in ipairs(effects) do
 		drawEffect(effect, i)
 	end
 		
-	for key, player in pairs(players) do  -- Draw players
-		drawPlayer(player)
-	end
-
 	for i, entity in ipairs(entities) do
 		drawEntity(entity, i)
+	end
+
+	for key, player in pairs(players) do  -- Draw players
+		drawPlayer(player)
 	end
 
 	for i, projectile in ipairs(projectiles) do
@@ -129,6 +127,10 @@ function love.keypressed(key, scancode, isrepeat)
 			end
 			updatePlayerPosition(player, x, y)
 		end	
+	elseif key == "f3" then
+		players['PLAYER_1'].modifier_aoe	= 2
+	elseif key == "f4" then
+		castLinearProjectile(players['PLAYER_2'], players['PLAYER_1'].spellbook['SPELL1'], players['PLAYER_1'].x, players['PLAYER_1'].y)
 	elseif key == "f5" then
 		os.execute("cls")	
 	elseif key == "esc"then

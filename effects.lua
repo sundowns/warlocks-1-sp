@@ -1,13 +1,14 @@
 effects = {}
 textLog = {}
 
-function addEffect(type, inX, inY)
+function addEffect(type, inX, inY, size)
+	size = size * effects[type].size
 	local newEffect = {
 		name = effects[type].name,
 		key = effects[type].name,
-		x = inX - ((effects[type].animation[1]:getWidth()/2) *effects[type].size),
-		y = inY - ((effects[type].animation[1]:getHeight()/2) *effects[type].size),
-		size = effects[type].size,
+		x = inX - ((effects[type].animation[1]:getWidth()/2) *size),
+		y = inY - ((effects[type].animation[1]:getHeight()/2) *size),
+		size = size,
 		animation = effects[type].animation,
 		currentFrame = 1,
 		timeBetweenFrames = effects[type].timeBetweenFrames,
@@ -52,10 +53,12 @@ function addTextData(inText, inX, inY, inDuration, dataType)
 		fontSize = 32
 	end
 
+	math.randomseed( os.time() )
+
 	local data = {
 		text = inText,
-		x = inX,
-		y = inY,
+		x = inX + math.random(-2,2),
+		y = inY + math.random(-2,2),
 		r = red,
 		g = green,
 		b = blue,

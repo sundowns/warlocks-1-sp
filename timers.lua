@@ -40,26 +40,30 @@ function updateTimers(dt)
 		end
 	end
 
-	for i, entity in ipairs(entities) do  -- projectile animation timers
-		entity.frameTimer = math.max(0, entity.frameTimer - dt)
-		if entity.frameTimer <= 0 then 
-			if entity.active then 
-					if entity.attackAnimationLength > 1 then
-						entity.currentFrame = entity.currentFrame + 1 
-					end
-					if entity.currentFrame > entity.attackAnimationLength then
-						entity.currentFrame = 1
-					end
-			else
-					if entity.chargingAnimationLength > 1 then
-						entity.currentFrame = entity.currentFrame + 1 
-					end
-					if entity.currentFrame > entity.chargingAnimationLength then
-						entity.currentFrame = 1
-					end
+	for i, entity in ipairs(entities) do  -- entities animation timers
+		if entity.activates then
+			entity.frameTimer = math.max(0, entity.frameTimer - dt)
+			if entity.frameTimer <= 0 then 
+				if entity.state == "ATTACK" then 
+						if entity.attackAnimationLength > 1 then
+							entity.currentFrame = entity.currentFrame + 1 
+						end
+						if entity.currentFrame > entity.attackAnimationLength then
+							entity.currentFrame = 1
+						end
+						entity.frameTimer = entity.timeBetweenFramesActive
+				elseif entity.state == "CHARGE" then
+						if entity.chargingAnimationLength > 1 then
+							entity.currentFrame = entity.currentFrame + 1 
+						end
+						if entity.currentFrame > entity.chargingAnimationLength then
+							entity.currentFrame = 1
+						end
+						entity.frameTimer = entity.timeBetweenFramesCharging
+				end
+				
 			end
-			entity.frameTimer = entity.timeBetweenFrames
-		end
+ 		end
 	end
 
 	for i, effect in ipairs(effects) do  -- effect animation timers

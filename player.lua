@@ -105,16 +105,41 @@ players["PLAYER_3"] = {
 
 skillslots = {'SPELL1', 'SPELL2', 'SPELL3', 'SPELL4', 'SPELL5'}
 
---check id dX,dY or right, some reason it aint moving haha idk
-function entityHit(owner, entity, dX, dY)
-	local player = players[owner]	
-	if entity.spell.name == "Fireball" then
- 		player.x_impact_velocity = math.clamp(player.x_impact_velocity + math.clamp((-dX*player.impact_acceleration), -entity.max_impulse, entity.max_impulse), -player.terminal_velocity, player.terminal_velocity)
-		player.y_impact_velocity = math.clamp(player.y_impact_velocity + math.clamp((-dY*player.impact_acceleration), -entity.max_impulse, entity.max_impulse), -player.terminal_velocity, player.terminal_velocity)
+function entityHit(owner, entity, dX, dY, self)
+	local dmg = entity.damage
+	if self then
+		dmg = dmg/2
+		dX = dX/2
+		dY = dY/2
 	end
-	
-	if player.state ~= 'DEAD' then
-		applyDamage(player, entity.damage)
+	local player = players[owner]	
+	if entity.hasHit[player.name] == nil or entity.multiHit then
+		if entity.spell.name == "Fireball" or entity.spell.name == "Fissure" then
+			local xAccel = math.clamp(-dX*player.impact_acceleration, -entity.max_impulse, entity.max_impulse)
+			local xAbsAccel = math.abs(xAccel)
+			if player.x_impact_velocity > 0 then
+				player.x_impact_velocity = math.clamp(player.x_impact_velocity + xAbsAccel, -player.terminal_velocity, player.terminal_velocity)
+			elseif player.x_impact_velocity < 0 then
+				player.x_impact_velocity = math.clamp(player.x_impact_velocity - xAbsAccel, -player.terminal_velocity, player.terminal_velocity)
+			elseif player.x_impact_velocity == 0 then
+				player.x_impact_velocity = math.clamp(player.x_impact_velocity + xAccel, -player.terminal_velocity, player.terminal_velocity)
+			end
+
+			local yAccel = math.clamp(-dY*player.impact_acceleration, -entity.max_impulse, entity.max_impulse)
+			local yAbsAccel = math.abs(yAccel)
+			if player.y_impact_velocity > 0 then
+				player.y_impact_velocity = math.clamp(player.y_impact_velocity + yAbsAccel, -player.terminal_velocity, player.terminal_velocity)
+			elseif player.y_impact_velocity < 0 then
+				player.y_impact_velocity = math.clamp(player.y_impact_velocity - yAbsAccel, -player.terminal_velocity, player.terminal_velocity)
+			elseif player.y_impact_velocity == 0 then
+				player.y_impact_velocity = math.clamp(player.y_impact_velocity + yAccel, -player.terminal_velocity, player.terminal_velocity)
+			end
+		end
+		
+		if player.state ~= 'DEAD' then
+			applyDamage(player, dmg)
+		end
+		entity.hasHit[player.name] = 1
 	end
 end
 
@@ -125,7 +150,6 @@ function applyDamage(player, damage)
 		player.state = "DEAD"
 	end
 end
-
 
 function getPlayerImg(player)
 	local img = nil
@@ -273,6 +297,10 @@ function drawPlayer(player)
 	end
 	
 	if debug then
+		love.graphics.setColor(255, 102, 0, 255)
 		love.graphics.circle("line", player.hitbox:outcircle())
+		local cx, cy = player.hitbox:center()
+		love.graphics.circle("fill", cx, cy, 2, 16)
+		resetColour()
 	end
 end

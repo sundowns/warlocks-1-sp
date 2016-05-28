@@ -18,6 +18,9 @@ function castSpell(player, spell, x, y)
 			end
 			updatePlayerState(player, "STAND")
 		end
+
+		spell.ready = false
+		spell.timer = spell.cooldown
 	end
 end
 
@@ -40,8 +43,10 @@ function castSprint(player, spell)
 end
 
 function castFissure(player, spell, x, y)
-	--calculate a point along the line between the player & xy that is the spell's range away from the player
-	spawnEntity(spell, player.name, x, y)
+	local x2, y2 = player.hitbox:center()
+	local dx, dy = calculateDirectionWithTwoPoints(x, y, x2, y2)
+	local dx, dy = 100000, 1000 -- hahah remove this
+	spawnEntity(spell, player.name, x, y, dx, dy)
 end
 
 function updateEnchantments(player, dt) 
@@ -90,6 +95,7 @@ function castLinearProjectile(player, spell, x, y)
 		img = spell.img,
 		time_to_live = spell.lifespan * player.modifier_range,
 		size = spell.size * player.modifier_aoe,
+		size_modifier = player.modifier_aoe,
 		currentFrame = 1,
 		animation = spell.animation,
 		owner = player.name,
@@ -111,8 +117,7 @@ function castLinearProjectile(player, spell, x, y)
 	newProjectile.hitbox.spell = "FIREBALL"
 
 	table.insert(projectiles, newProjectile)
-	spell.ready = false
-	spell.timer = spell.cooldown
+	
 end
 
 function updateProjectile(projectile, dt, kill, i)
@@ -178,10 +183,19 @@ function handleProjectileCollision(projectile)
 	local kill = false
 	for shape, delta in pairs(HC.collisions(projectile.hitbox)) do
 		if projectile.owner ~= shape.owner then
-			addEffect("EXPLOSION", shape:center())
-			local x, y = shape:center()
-			spawnEntity(projectile.spell, projectile.owner, x, y, delta.x, delta.y) 	
-			kill = true
+			if shape.type=="PLAYER" then 
+				local x, y = projectile.hitbox:center()
+				addEffect("EXPLOSION", x, y, projectile.size_modifier)
+				spawnEntity(projectile.spell, projectile.owner, x, y, delta.x, delta.y) 	
+				kill = true
+			elseif shape.type=="SPELL" then
+				if projectile.spell.name == "Fireball" then
+					local x, y = projectile.hitbox:center()
+					addEffect("EXPLOSION", x, y, projectile.size_modifier)
+					spawnEntity(projectile.spell, projectile.owner, x, y, delta.x, delta.y) 	
+					kill = true
+				end
+			end
 		end
 	end
 	return kill
