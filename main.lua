@@ -8,14 +8,23 @@ drawthatX = 1
 drawthatY = 1
 drawthatR = 1
 
---Hardon Collider
-HC = require 'libs/HC'
-Camera = require 'libs/camera'
-STI = require 'libs/sti'
+loadingTimer = 0.5 --remove this when u done circle jerkin
+
+function loadlibs()
+	--Hardon Collider
+	HC = require 'libs/HC'
+	Camera = require 'libs/camera'
+	STI = require 'libs/sti'
+end
+
+loadingScreen = nil
 
 -- Load callback. Called ONCE initially
 function love.load(arg)
-	--love.graphics
+	loading = true
+	loadingScreen = love.graphics.newImage('assets/misc/loading-screen.png')
+	love.graphics.setBackgroundColor( 0, 0, 0)
+	loadlibs()
 	require("settings")
 	require("util")
 	require("timers")
@@ -32,17 +41,26 @@ function love.load(arg)
 	players['PLAYER_1'].spellbook['SPELL2'] = spells['SPRINT']
 	players['PLAYER_1'].spellbook['SPELL3'] = spells['FISSURE']
 	players['PLAYER_1'].spellbook['SPELL4'] = spells['TELEPORT']
+
+	
 end
 -- End Load
 
 -- Update callback. Called every frame
 function love.update(dt)
-	if not paused then 
+	loadingTimer = loadingTimer - dt -- remove all this lmao
+	if loadingTimer <= 0 then
+		loading = false
+	end
+
+	if not paused and not loading then 
 		updateStage(dt)
 		for key, player in pairs(players) do
 			calculatePlayerMovement(player, dt)
 			if player.userControlled then
 				processInput(player)
+				local pX, pY = player.hitbox:center()
+				print("x: " .. pX .. " y: " ..pY)
 			end
 			updateEnchantments(player, dt)
 		end
@@ -60,51 +78,55 @@ end
 
 -- Draw callback. Called every frame
 function love.draw()
-	camera:attach()
+	if loading then
+		love.graphics.draw( loadingScreen, love.graphics.getWidth()/2-loadingScreen:getWidth()/2, love.graphics.getHeight()/2-loadingScreen:getHeight()/2 )
+	else 
+		camera:attach()
 
-	drawStage() -- Draw our stage
+		drawStage() -- Draw our stage
 
 
-	for i, effect in ipairs(effects) do
-		drawEffect(effect, i)
-	end
-		
-	for i, entity in ipairs(entities) do
-		drawEntity(entity, i)
-	end
+		for i, effect in ipairs(effects) do
+			drawEffect(effect, i)
+		end
+			
+		for i, entity in ipairs(entities) do
+			drawEntity(entity, i)
+		end
 
-	for key, player in pairs(players) do  -- Draw players
-		drawPlayer(player)
-	end
+		for key, player in pairs(players) do  -- Draw players
+			drawPlayer(player)
+		end
 
-	for i, effect in ipairs(effects) do
-		drawEffect(effect, i)
-	end
+		for i, effect in ipairs(effects) do
+			drawEffect(effect, i)
+		end
 
-	for i, projectile in ipairs(projectiles) do
-  		drawProjectile(projectile)
-	end
+		for i, projectile in ipairs(projectiles) do
+	  		drawProjectile(projectile)
+		end
 
-	for i, data in ipairs(textLog) do
-		drawTextData(data, i)
-	end
+		for i, data in ipairs(textLog) do
+			drawTextData(data, i)
+		end
 
-	if debug then 
-		local camX, camY = camera:position()
-		love.graphics.setColor(255, 0, 0, 255)
-		love.graphics.circle('fill', camX, camY, 2, 16)
-		love.graphics.rectangle('line', camX - love.graphics.getWidth()*0.05, camY - love.graphics.getHeight()*0.035, 0.1*love.graphics.getWidth(), 0.07*love.graphics.getHeight())
-		resetColour()
-	end
-	camera:detach()
+		if debug then 
+			local camX, camY = camera:position()
+			love.graphics.setColor(255, 0, 0, 255)
+			love.graphics.circle('fill', camX, camY, 2, 16)
+			love.graphics.rectangle('line', camX - love.graphics.getWidth()*0.05, camY - love.graphics.getHeight()*0.035, 0.1*love.graphics.getWidth(), 0.07*love.graphics.getHeight())
+			resetColour()
+		end
+		camera:detach()
 
-	--Leave this at the end so its on top
-	if (paused) then
-		love.graphics.setColor(255, 0, 0, 255)
-		setFontSize(32)
-		love.graphics.print("Paused", love.graphics.getWidth()/2 - 45, love.graphics.getHeight()/3)
-		resetColour()
-		resetFont()
+		--Leave this at the end so its on top
+		if (paused) then
+			love.graphics.setColor(255, 0, 0, 255)
+			setFontSize(32)
+			love.graphics.print("Paused", love.graphics.getWidth()/2 - 45, love.graphics.getHeight()/3)
+			resetColour()
+			resetFont()
+		end
 	end
 end
 -- End Draw

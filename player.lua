@@ -261,6 +261,9 @@ function calculatePlayerMovement(player, dt)
 	elseif player.y_impact_velocity < 0 then
 		player.y_impact_velocity = math.min(0, player.y_impact_velocity + (player.impact_friction * dt)) 
 	end
+
+	local playerX, playerY = player.hitbox:center()
+	if playerX < playerX/stage.tilewidth then end
 end
 
 function updatePlayerState(player, state)
