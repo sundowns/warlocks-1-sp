@@ -11,6 +11,7 @@ function initialise()
 	initPlayerControls() 
 
 	camera = Camera(players['PLAYER_1'].x, players['PLAYER_1'].y)
+	camera:zoom(1.25)
 end
 
 function initPlayerControls()

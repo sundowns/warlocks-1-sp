@@ -15,6 +15,7 @@ STI = require 'libs/sti'
 
 -- Load callback. Called ONCE initially
 function love.load(arg)
+	--love.graphics
 	require("settings")
 	require("util")
 	require("timers")
@@ -141,8 +142,8 @@ function love.keypressed(key, scancode, isrepeat)
 		castLinearProjectile(players['PLAYER_2'], players['PLAYER_1'].spellbook['SPELL1'], players['PLAYER_1'].x, players['PLAYER_1'].y)
 	elseif key == "f5" then
 		os.execute("cls")	
-	elseif key == "esc"then
-		love.quit()
+	elseif key == "escape" then
+		love.event.quit()
 	end
 end
 
@@ -185,5 +186,5 @@ function updateCamera()
 	end
 
 	--camera:lookAt(newX, newY)
-	camera:lockPosition(newX, newY, camera.smooth.damped(1.5))
+	camera:lockPosition(newX, newY, camera.smooth.damped(2))
 end

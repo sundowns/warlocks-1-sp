@@ -6,10 +6,10 @@ stageTickTimer = 0.8
 stageTickLength = 0.8
 stageTick = 0
 stagePhase = 1
-stagePhaseTimer = 10
-stagePhaseTickTime = 10
+stagePhaseTimer = 2
+stagePhaseTickTime = 2
 stageDamageOverTime = 6
-phaseCount = 2
+phaseCount = 3
 
 function initStage()
 	stage = STI.new("assets/maps/ffa01.lua")
@@ -32,15 +32,18 @@ function updateStage(dt)
 		stage:update(dt)
 		for key, layer in pairs(stage.layers) do
 			if (type(key) == "string") then 
+
 				if layer.properties['phase'] == stagePhase and layer.properties['damaging'] then
-				print("key: " .. key)
+				print("key: " .. key .. " phase: " .. stagePhase)
 					for playerKey, player in pairs(players) do
 						if playerKey == "PLAYER_1" then 
 							local playerX, playerY = player.hitbox:center()
 							local tileX = math.floor(playerX/stage.tilewidth)
 							local tileY = math.floor(playerY/stage.tileheight)
 							--print(player.name .. " at" .. tileX .. "," .. tileY .. " trueX,Y: " .. playerX .. "," .. playerY)
-							if layer.data[tileY][tileX] ~= nil then
+							print(layer.properties['phase'] .. " : " .. stagePhase)
+							if layer.data[tileY][tileX] ~= nil and layer.properties['active'] then
+								print(layer.data[tileY][tileX].id)
 								applyDamage(player, stageDamageOverTime, "LAVA") --applyDamage(player, damage, sourceType)
 							end
 						end

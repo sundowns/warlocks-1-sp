@@ -94,7 +94,9 @@ function updateTimers(dt)
 
 	stagePhaseTimer = math.max(0, stagePhaseTimer - dt)
 	if stagePhaseTimer <= 0 and stagePhase < phaseCount then 
+		stage.layers['Lava_'..stagePhase].active = false
 		stagePhase = stagePhase + 1
 		stagePhaseTimer = stagePhaseTickTime
+		stage.layers['Lava_'..stagePhase].active = true
 	end
 end
