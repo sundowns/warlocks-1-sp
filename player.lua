@@ -137,17 +137,33 @@ function entityHit(owner, entity, dX, dY, self)
 		end
 		
 		if player.state ~= 'DEAD' then
-			applyDamage(player, dmg)
+			if self then	
+				applyDamage(player, dmg, "DAMAGE_SELF", entity.owner)
+			else
+				applyDamage(player, dmg, "DAMAGE_ENEMY", entity.owner)
+			end
 		end
 		entity.hasHit[player.name] = 1
 	end
 end
 
-function applyDamage(player, damage)
-	addTextData(damage, player.x, player.y, 4, "DAMAGE")
-	player.health = math.max(0, player.health - damage)
-	if player.health <= 0 then
-		player.state = "DEAD"
+player1DMG = 0
+
+function applyDamage(player, damage, sourceType, from)
+	if player.state ~= "DEAD" then
+		addTextData(damage, player.x, player.y, 4, sourceType)
+		player.health = math.max(0, player.health - damage)
+		if sourceType == "DAMAGE_ENEMY" then
+
+			if from == 'PLAYER_1' then
+				player1DMG = player1DMG + damage
+				print("damage: " .. player1DMG)
+			end
+		end
+
+		if player.health <= 0 then
+			player.state = "DEAD"
+		end
 	end
 end
 
@@ -182,7 +198,7 @@ function processInput(player)
 			if player.spellbook[skillslots[i]] ~= nil then 
 				if player.spellbook[skillslots[i]].ready then
 					player.selected_spell = skillslots[i] 
-					if player.spellbook[skillslots[i]].archetype == "PROJECTILE" or player.spellbook[skillslots[i]].archetype == "ENTITYSPAWN" then
+					if player.spellbook[skillslots[i]].archetype == "PROJECTILE" or player.spellbook[skillslots[i]].archetype == "ENTITYSPAWN" or player.spellbook[skillslots[i]].archetype == "ESCAPE" then
 						updatePlayerState(player, "CASTING")
 					elseif player.spellbook[skillslots[i]].archetype == "ENCHANTMENT" then
 						if player.state == "STAND" or player.state == "RUN" then
@@ -268,10 +284,6 @@ function updatePlayerPosition(player, x, y)
 	player.x = x
 	player.y = y
 	updatePlayerHitbox(player)
-end
-
-function getCenter(player)
-	return player.x + player.width/2, player.y + player.height/2
 end
 
 function drawPlayer(player)

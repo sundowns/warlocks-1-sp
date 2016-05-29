@@ -4,6 +4,7 @@ function initialise()
 	initSpells() 
 	initEffects() 
 	initEntities()
+	initStage()
 	for key, player in pairs(players) do
 		initPlayer(player)
 	end
@@ -186,6 +187,7 @@ function initSpells()
 	spells["SPRINT"].animation[15]= love.graphics.newImage('assets/spells/sprint/15.png')
 	spells["SPRINT"].animation[16]= love.graphics.newImage('assets/spells/sprint/16.png')
 
+	--FISSURE
 
 	spells["FISSURE"] = {
 		name = "Fissure",
@@ -211,7 +213,7 @@ function initSpells()
 		chargingTime = 3,
 		activeTimer = 1,
 		attackAnimationLength = 11,
-		attackAnimationTimer = 0.12*11,
+		attackAnimationTimer = 0.11*11,
 		chargingAnimationLength = 21
 	}
 
@@ -236,7 +238,59 @@ function initSpells()
 	spells["FISSURE"].animation[19] = { charging = love.graphics.newImage('assets/spells/fissure/19.png') } 
 	spells["FISSURE"].animation[20] = { charging = love.graphics.newImage('assets/spells/fissure/20.png') } 
 	spells["FISSURE"].animation[21] = { charging = love.graphics.newImage('assets/spells/fissure/21.png') } 
-	
+
+	--TELEPORT
+
+	spells["TELEPORT"] = {
+		name = "Teleport",
+		level = 1,
+		archetype = "ESCAPE",
+		cooldown = 1, 
+		ready = true,
+		lifespan = 0.7, 
+		currentFrame = 1,
+		size = 0.4,
+		animation = {},
+		timeBetweenFrames = 0.021,
+		frameTimer = 0.021,
+		time_to_live = 2
+	}
+
+	spells["TELEPORT"].animation[1]= love.graphics.newImage('assets/spells/teleport/1.png')
+	spells["TELEPORT"].animation[2]= love.graphics.newImage('assets/spells/teleport/2.png')
+	spells["TELEPORT"].animation[3]= love.graphics.newImage('assets/spells/teleport/3.png')
+	spells["TELEPORT"].animation[4]= love.graphics.newImage('assets/spells/teleport/4.png')
+	spells["TELEPORT"].animation[5]= love.graphics.newImage('assets/spells/teleport/5.png')
+	spells["TELEPORT"].animation[6]= love.graphics.newImage('assets/spells/teleport/6.png')
+	spells["TELEPORT"].animation[7]= love.graphics.newImage('assets/spells/teleport/7.png')
+	spells["TELEPORT"].animation[8]= love.graphics.newImage('assets/spells/teleport/8.png')
+	spells["TELEPORT"].animation[9]= love.graphics.newImage('assets/spells/teleport/9.png')
+	spells["TELEPORT"].animation[10]= love.graphics.newImage('assets/spells/teleport/10.png')
+	spells["TELEPORT"].animation[11]= love.graphics.newImage('assets/spells/teleport/11.png')
+	spells["TELEPORT"].animation[12]= love.graphics.newImage('assets/spells/teleport/12.png')
+	spells["TELEPORT"].animation[13]= love.graphics.newImage('assets/spells/teleport/13.png')
+	spells["TELEPORT"].animation[14]= love.graphics.newImage('assets/spells/teleport/14.png')
+	spells["TELEPORT"].animation[15]= love.graphics.newImage('assets/spells/teleport/15.png')
+	spells["TELEPORT"].animation[16]= love.graphics.newImage('assets/spells/teleport/16.png')
+	spells["TELEPORT"].animation[17]= love.graphics.newImage('assets/spells/teleport/17.png')
+	spells["TELEPORT"].animation[18]= love.graphics.newImage('assets/spells/teleport/18.png')
+	spells["TELEPORT"].animation[19]= love.graphics.newImage('assets/spells/teleport/19.png')
+	spells["TELEPORT"].animation[20]= love.graphics.newImage('assets/spells/teleport/20.png')
+	spells["TELEPORT"].animation[21]= love.graphics.newImage('assets/spells/teleport/21.png')
+	spells["TELEPORT"].animation[22]= love.graphics.newImage('assets/spells/teleport/22.png')
+	spells["TELEPORT"].animation[23]= love.graphics.newImage('assets/spells/teleport/23.png')
+	spells["TELEPORT"].animation[24]= love.graphics.newImage('assets/spells/teleport/24.png')
+	spells["TELEPORT"].animation[25]= love.graphics.newImage('assets/spells/teleport/25.png')
+	spells["TELEPORT"].animation[26]= love.graphics.newImage('assets/spells/teleport/26.png')
+	spells["TELEPORT"].animation[27]= love.graphics.newImage('assets/spells/teleport/27.png')
+	spells["TELEPORT"].animation[28]= love.graphics.newImage('assets/spells/teleport/28.png')
+	spells["TELEPORT"].animation[29]= love.graphics.newImage('assets/spells/teleport/29.png')
+	spells["TELEPORT"].animation[30]= love.graphics.newImage('assets/spells/teleport/30.png')
+	spells["TELEPORT"].animation[31]= love.graphics.newImage('assets/spells/teleport/31.png')
+	spells["TELEPORT"].animation[32]= love.graphics.newImage('assets/spells/teleport/32.png')
+	spells["TELEPORT"].animation[33]= love.graphics.newImage('assets/spells/teleport/33.png')
+
+
 end
 
 function initEffects()

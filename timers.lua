@@ -76,16 +76,25 @@ function updateTimers(dt)
 				if effect.loop then
 					effect.currentFrame = 1
 				else 
-					table.remove(effects, i)
+					if effect.duration == nil then
+						table.remove(effects, i)
+					end
 				end
 			end
 			effect.frameTimer = effect.timeBetweenFrames
 		end
-		if effect.loop then
+		
+		if effect.duration ~= nil then 
 			effect.duration = math.max(0, effect.duration - dt)
 			if effect.duration == 0 then
 				table.remove(effects, i)
 			end
 		end
+	end
+
+	stagePhaseTimer = math.max(0, stagePhaseTimer - dt)
+	if stagePhaseTimer <= 0 and stagePhase < phaseCount then 
+		stagePhase = stagePhase + 1
+		stagePhaseTimer = stagePhaseTickTime
 	end
 end

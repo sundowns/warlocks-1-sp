@@ -11,6 +11,7 @@ drawthatR = 1
 --Hardon Collider
 HC = require 'libs/HC'
 Camera = require 'libs/camera'
+STI = require 'libs/sti'
 
 -- Load callback. Called ONCE initially
 function love.load(arg)
@@ -29,12 +30,14 @@ function love.load(arg)
 	players['PLAYER_1'].spellbook['SPELL1'] = spells['FIREBALL']
 	players['PLAYER_1'].spellbook['SPELL2'] = spells['SPRINT']
 	players['PLAYER_1'].spellbook['SPELL3'] = spells['FISSURE']
+	players['PLAYER_1'].spellbook['SPELL4'] = spells['TELEPORT']
 end
 -- End Load
 
 -- Update callback. Called every frame
 function love.update(dt)
 	if not paused then 
+		updateStage(dt)
 		for key, player in pairs(players) do
 			calculatePlayerMovement(player, dt)
 			if player.userControlled then
@@ -60,6 +63,7 @@ function love.draw()
 
 	drawStage() -- Draw our stage
 
+
 	for i, effect in ipairs(effects) do
 		drawEffect(effect, i)
 	end
@@ -70,6 +74,10 @@ function love.draw()
 
 	for key, player in pairs(players) do  -- Draw players
 		drawPlayer(player)
+	end
+
+	for i, effect in ipairs(effects) do
+		drawEffect(effect, i)
 	end
 
 	for i, projectile in ipairs(projectiles) do
@@ -84,7 +92,7 @@ function love.draw()
 		local camX, camY = camera:position()
 		love.graphics.setColor(255, 0, 0, 255)
 		love.graphics.circle('fill', camX, camY, 2, 16)
-		love.graphics.rectangle('line', camX - love.graphics.getWidth()*0.15, camY - love.graphics.getHeight()*0.1, 0.3*love.graphics.getWidth(), 0.2*love.graphics.getHeight())
+		love.graphics.rectangle('line', camX - love.graphics.getWidth()*0.05, camY - love.graphics.getHeight()*0.035, 0.1*love.graphics.getWidth(), 0.07*love.graphics.getHeight())
 		resetColour()
 	end
 	camera:detach()
@@ -162,19 +170,20 @@ end
 function updateCamera()
 	local camX, camY = camera:position()
 	local newX, newY = camX, camY
-	local playerX, playerY = getCenter(players['PLAYER_1'])
-	if (playerX > camX + love.graphics.getWidth()*0.15) then
-		newX = playerX - love.graphics.getWidth()*0.15
+	local playerX, playerY = players['PLAYER_1'].hitbox:center()
+	if (playerX > camX + love.graphics.getWidth()*0.05) then
+		newX = playerX - love.graphics.getWidth()*0.05
 	end
-	if (playerX < camX - love.graphics.getWidth()*0.15) then
-		newX = playerX + love.graphics.getWidth()*0.15
+	if (playerX < camX - love.graphics.getWidth()*0.05) then
+		newX = playerX + love.graphics.getWidth()*0.05
 	end
-	if (playerY > camY + love.graphics.getHeight()*0.1) then
-		newY = playerY - love.graphics.getHeight()*0.1
+	if (playerY > camY + love.graphics.getHeight()*0.035) then
+		newY = playerY - love.graphics.getHeight()*0.035
 	end
-	if (playerY < camY - love.graphics.getHeight()*0.1) then
-		newY = playerY + love.graphics.getHeight()*0.1
+	if (playerY < camY - love.graphics.getHeight()*0.035) then
+		newY = playerY + love.graphics.getHeight()*0.035
 	end
 
-	camera:lookAt(newX, newY)
+	--camera:lookAt(newX, newY)
+	camera:lockPosition(newX, newY, camera.smooth.damped(1.5))
 end

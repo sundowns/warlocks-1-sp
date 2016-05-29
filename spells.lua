@@ -17,17 +17,26 @@ function castSpell(player, spell, x, y)
 				castFissure(player, spell, x, y)		
 			end
 			updatePlayerState(player, "STAND")
+		elseif spell.archetype == "ESCAPE" then
+			if spell.name == "Teleport" then 
+				castTeleport(player, spell, x, y)
+			end
 		end
-
 		spell.ready = false
 		spell.timer = spell.cooldown
 	end
 end
 
+function castTeleport(player, spell, x, y)
+	updatePlayerPosition(player, x, y)
+	addDurationEffect(spell, x + player.width*0.7, y - player.height*0.3, spell.lifespan, player.name, false, true)
+	updatePlayerState(player, "STAND")
+end
+
 function castSprint(player, spell) 
 	local startX = player.x + player.width
 	local startY = player.y + player.height
-	addSpellEffect(spell, startX, startY, spell.lifespan, player.name)
+	addDurationEffect(spell, startX, startY, spell.lifespan, player.name, true)
 	local sprintEnchant = {
 		duration = spell.lifespan,
 		name = spell.name,
