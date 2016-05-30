@@ -290,7 +290,14 @@ function updatePlayerPosition(player, x, y)
 end
 
 function drawPlayer(player)
+		if player.name == "PLAYER_1" then
+		love.graphics.setColor(255, 0, 255, 255)
+				
+	end
+
 	love.graphics.draw(getPlayerImg(player), player.x, player.y, 0, 2, 2)
+
+resetColour()
 
 	if player.state ~= 'DEAD' then 
 		if settings.showPlayerNames then
@@ -318,4 +325,6 @@ function drawPlayer(player)
 		love.graphics.circle("fill", cx, cy, 2, 16)
 		resetColour()
 	end
+
+
 end

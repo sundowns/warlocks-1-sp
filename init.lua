@@ -57,6 +57,7 @@ function initPlayer(player)
 	}
 
 	player.States["STAND"].animation[1] = {
+		-- TODO: add other half of sprite
 		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/stand-left.png'),
 		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/stand-right.png'),
 	}
