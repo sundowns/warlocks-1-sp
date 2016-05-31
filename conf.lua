@@ -3,7 +3,7 @@ function love.conf(t)
 	t.version = "0.10.1"
 	t.window.width = 1200
 	t.window.height = 980
-	t.window.fullscreen = true
+	t.window.fullscreen = false
  	t.window.borderless = false         -- Remove all border visuals from the window (boolean)
   t.window.resizable = false          -- Let the window be user-resizable (boolean)
 

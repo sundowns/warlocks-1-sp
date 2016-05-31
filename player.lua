@@ -22,7 +22,7 @@ players["PLAYER_1"] = {
  	modifier_aoe = 1,
  	modifier_range = 1,
  	name = "PLAYER_1",
- 	colour = "RED",
+ 	colour = {r = 255, g = 255, b = 255},
  	States = {},
  	hitbox = nil,
  	impact_acceleration = 2000,
@@ -56,7 +56,7 @@ players["PLAYER_2"] = {
  	modifier_aoe = 1,
  	modifier_range = 1,
  	name = "PLAYER_2",
- 	colour = "GREEN",
+ 	colour = {r = 0, g = 0, b = 255},
  	States = {},
  	hitbox = nil,
  	impact_acceleration = 2000,
@@ -90,7 +90,7 @@ players["PLAYER_3"] = {
  	modifier_aoe = 1,
  	modifier_range = 1,
  	name = "PLAYER_3",
- 	colour = "PURPLE",
+ 	colour = {r = 0, g = 255, b = 0},
  	States = {},
  	hitbox = nil,
  	impact_acceleration = 2000,
@@ -173,6 +173,26 @@ function getPlayerImg(player)
 		img = player.States[player.state].animation[player.States[player.state].currentFrame].rightImg
 	elseif player.orientation == "LEFT" then
 		img = player.States[player.state].animation[player.States[player.state].currentFrame].leftImg
+	end
+	return img
+end
+
+function getPlayerRobe(player)
+	local img = nil
+	if player.orientation == "RIGHT" then
+		img = player.States[player.state].animation[player.States[player.state].currentFrame].rightImg_robe
+	elseif player.orientation == "LEFT" then
+		img = player.States[player.state].animation[player.States[player.state].currentFrame].leftImg_robe
+	end
+	return img
+end
+
+function getPlayerOutline(player)
+	local img = nil
+	if player.orientation == "RIGHT" then
+		img = player.States[player.state].animation[player.States[player.state].currentFrame].rightImg_outline
+	elseif player.orientation == "LEFT" then
+		img = player.States[player.state].animation[player.States[player.state].currentFrame].leftImg_outline
 	end
 	return img
 end
@@ -275,8 +295,8 @@ function updatePlayerState(player, state)
 
 	player.States[player.state].currentFrame = 1
 	player.state = state
-	player.height = player.States[state].animation[1].leftImg:getHeight()
-	player.width = player.States[state].animation[1].leftImg:getWidth()
+	player.height = player.States[state].animation[1].leftImg_outline:getHeight()
+	player.width = player.States[state].animation[1].leftImg_outline:getWidth()
 end
 
 function updatePlayerHitbox(player)
@@ -290,25 +310,21 @@ function updatePlayerPosition(player, x, y)
 end
 
 function drawPlayer(player)
-		if player.name == "PLAYER_1" then
-		love.graphics.setColor(255, 0, 255, 255)
-				
-	end
-
-	love.graphics.draw(getPlayerImg(player), player.x, player.y, 0, 2, 2)
-
-resetColour()
-
+	love.graphics.setColor(player.colour.r, player.colour.g, player.colour.b, 255)
+	love.graphics.draw(getPlayerRobe(player), player.x, player.y, 0, 2, 2)	
+	resetColour()
+	love.graphics.draw(getPlayerOutline(player), player.x, player.y, 0, 2, 2)
+	
 	if player.state ~= 'DEAD' then 
 		if settings.showPlayerNames then
-			local width = player.States['STAND'].animation[1].leftImg:getWidth()*2
+			local width = player.States['STAND'].animation[1].leftImg_outline:getWidth()*2
 			love.graphics.setColor(255, 255, 0, 255)
 			love.graphics.printf(player.alias, player.x - 60 , player.y - width*1.1, 150, 'center')
 			resetColour()
 		end
 
 		if settings.showHealthBars then 
-			local width = player.States['STAND'].animation[1].leftImg:getWidth()*2 + 10
+			local width = player.States['STAND'].animation[1].leftImg_outline:getWidth()*2 + 10
 			local currHealth = player.health/player.max_health
 			love.graphics.setColor(255*(1-currHealth), 255*currHealth, 0, 255)
 			love.graphics.rectangle('fill', player.x-5, player.y-7, width*currHealth, 6)
@@ -325,6 +341,4 @@ resetColour()
 		love.graphics.circle("fill", cx, cy, 2, 16)
 		resetColour()
 	end
-
-
 end

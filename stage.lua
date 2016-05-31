@@ -41,7 +41,11 @@ function updateStage(dt)
 							local tileX = math.max(0,  math.floor(playerX/stage.tilewidth))
 							local tileY = math.max(0, math.floor(playerY/stage.tileheight))
 							--print(player.name .. " at" .. tileX .. "," .. tileY .. " trueX,Y: " .. playerX .. "," .. playerY)
-							print(layer.properties['phase'] .. " : " .. stagePhase)
+							
+							if layer.properties['active'] then
+								print(layer.properties['phase'] .. " : " .. stagePhase .. " is active")
+							end
+							
 							if tileY > 0 and tileY < #layer.data and layer.data[tileY][tileX] ~= nil and layer.properties['active'] then
 								print(layer.data[tileY][tileX].id)
 								applyDamage(player, stageDamageOverTime, "LAVA") --applyDamage(player, damage, sourceType)

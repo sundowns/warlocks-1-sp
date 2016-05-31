@@ -55,11 +55,12 @@ function initPlayer(player)
 		timeBetweenFrames = 1000,
 		frameTimer = 1000
 	}
-
 	player.States["STAND"].animation[1] = {
 		-- TODO: add other half of sprite
-		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/stand-left.png'),
-		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/stand-right.png'),
+		leftImg_outline = love.graphics.newImage('assets/player/stand-left-outline.png'),
+		leftImg_robe = love.graphics.newImage('assets/player/stand-left-robe.png'),
+		rightImg_outline = love.graphics.newImage('assets/player/stand-right-outline.png'),
+		rightImg_robe = love.graphics.newImage('assets/player/stand-right-robe.png')
 	}
 
 	--RUN
@@ -70,28 +71,40 @@ function initPlayer(player)
 		frameTimer = 0.15
 	}
 	player.States["RUN"].animation[1] = {
-		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-left-1.png'),
-		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-right-1.png')
+		leftImg_outline = love.graphics.newImage('assets/player/run-left-outline-1.png'),
+		leftImg_robe = love.graphics.newImage('assets/player/run-left-robe-1.png'),
+		rightImg_outline = love.graphics.newImage('assets/player/run-right-outline-1.png'),
+		rightImg_robe = love.graphics.newImage('assets/player/run-right-robe-1.png')
 	}
 	player.States["RUN"].animation[2] = {
-		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-left-2.png'),
-		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-right-2.png')
+		leftImg_outline = love.graphics.newImage('assets/player/run-left-outline-2.png'),
+		leftImg_robe = love.graphics.newImage('assets/player/run-left-robe-2.png'),
+		rightImg_outline = love.graphics.newImage('assets/player/run-right-outline-2.png'),
+		rightImg_robe = love.graphics.newImage('assets/player/run-right-robe-2.png')
 	}
 	player.States["RUN"].animation[3] = {
-		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-left-3.png'),
-		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-right-3.png')
+		leftImg_outline = love.graphics.newImage('assets/player/run-left-outline-3.png'),
+		leftImg_robe = love.graphics.newImage('assets/player/run-left-robe-3.png'),
+		rightImg_outline = love.graphics.newImage('assets/player/run-right-outline-3.png'),
+		rightImg_robe = love.graphics.newImage('assets/player/run-right-robe-3.png')
 	}
 	player.States["RUN"].animation[4] = {
-		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-left-4.png'),
-		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-right-4.png')
+		leftImg_outline = love.graphics.newImage('assets/player/run-left-outline-4.png'),
+		leftImg_robe = love.graphics.newImage('assets/player/run-left-robe-4.png'),
+		rightImg_outline = love.graphics.newImage('assets/player/run-right-outline-4.png'),
+		rightImg_robe = love.graphics.newImage('assets/player/run-right-robe-4.png')
 	}
 	player.States["RUN"].animation[5] = {
-		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-left-5.png'),
-		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-right-5.png')
+		leftImg_outline = love.graphics.newImage('assets/player/run-left-outline-5.png'),
+		leftImg_robe = love.graphics.newImage('assets/player/run-left-robe-5.png'),
+		rightImg_outline = love.graphics.newImage('assets/player/run-right-outline-5.png'),
+		rightImg_robe = love.graphics.newImage('assets/player/run-right-robe-5.png')
 	}
 	player.States["RUN"].animation[6] = {
-		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-left-6.png'),
-		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/run-right-6.png')
+		leftImg_outline = love.graphics.newImage('assets/player/run-left-outline-6.png'),
+		leftImg_robe = love.graphics.newImage('assets/player/run-left-robe-6.png'),
+		rightImg_outline = love.graphics.newImage('assets/player/run-right-outline-6.png'),
+		rightImg_robe = love.graphics.newImage('assets/player/run-right-robe-6.png')
 	}
 
 	--CASTING
@@ -102,8 +115,10 @@ function initPlayer(player)
 		frameTimer = 1000
 	}
 	player.States["CASTING"].animation[1] = {
-		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/cast-left.png'),
-		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/cast-right.png'),
+		leftImg_outline = love.graphics.newImage('assets/player/cast-left-outline.png'),
+		leftImg_robe = love.graphics.newImage('assets/player/cast-left-robe.png'),
+		rightImg_outline = love.graphics.newImage('assets/player/cast-right-outline.png'),
+		rightImg_robe = love.graphics.newImage('assets/player/cast-right-robe.png')
 	}
 
 	--DEAD
@@ -114,12 +129,14 @@ function initPlayer(player)
 		frameTimer = 1000
 	}
 	player.States["DEAD"].animation[1] = {
-		leftImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/dead-left.png'),
-		rightImg = love.graphics.newImage('assets/player/' .. player.colour ..  '/dead-right.png'),
+		leftImg_outline = love.graphics.newImage('assets/player/dead-left-outline.png'),
+		leftImg_robe = love.graphics.newImage('assets/player/dead-left-robe.png'),
+		rightImg_outline = love.graphics.newImage('assets/player/dead-right-outline.png'),
+		rightImg_robe = love.graphics.newImage('assets/player/dead-right-robe.png')
 	}
 
-	player.height = player.States["STAND"].animation[1].leftImg:getHeight()
-	player.width = player.States["STAND"].animation[1].leftImg:getWidth()
+	player.height = player.States["STAND"].animation[1].leftImg_outline:getHeight()
+	player.width = player.States["STAND"].animation[1].leftImg_outline:getWidth()
 
 	player.hitbox = HC.circle(player.x + player.width*1.2, player.y + player.height*1.2, player.height*1.05)
 	player.hitbox.owner = player.name

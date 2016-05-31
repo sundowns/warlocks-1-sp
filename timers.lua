@@ -98,5 +98,8 @@ function updateTimers(dt)
 		stagePhase = stagePhase + 1
 		stagePhaseTimer = stagePhaseTickTime
 		stage.layers['Lava_'..stagePhase].active = true
+		if stage.layers['Lava_'..stagePhase].active then
+			print ("Lava_" .. stagePhase .. " is active")
+		end
 	end
 end

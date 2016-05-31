@@ -59,8 +59,6 @@ function love.update(dt)
 			calculatePlayerMovement(player, dt)
 			if player.userControlled then
 				processInput(player)
-				local pX, pY = player.hitbox:center()
-				print("x: " .. pX .. " y: " ..pY)
 			end
 			updateEnchantments(player, dt)
 		end
