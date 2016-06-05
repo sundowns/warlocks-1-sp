@@ -70,6 +70,16 @@ function love.update(dt)
 		updateEntities(dt)
 
 		updateCamera()
+--[[
+		print('---')
+		for i = 1, #layerPhaseIsActive do
+			if layerPhaseIsActive[i] then 
+				print("phase " .. i .. " is active" ) 
+			else 
+				print("phase " .. i .. " is not active" ) 
+			end
+		end
+]]
 	end
 end
 -- End update

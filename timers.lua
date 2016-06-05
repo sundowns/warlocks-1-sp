@@ -94,12 +94,10 @@ function updateTimers(dt)
 
 	stagePhaseTimer = math.max(0, stagePhaseTimer - dt)
 	if stagePhaseTimer <= 0 and stagePhase < phaseCount then 
-		stage.layers['Lava_'..stagePhase].active = false
+		layerPhaseIsActive[stagePhase] = false
 		stagePhase = stagePhase + 1
 		stagePhaseTimer = stagePhaseTickTime
-		stage.layers['Lava_'..stagePhase].active = true
-		if stage.layers['Lava_'..stagePhase].active then
-			print ("Lava_" .. stagePhase .. " is active")
-		end
+		layerPhaseIsActive[stagePhase] = true
+		--print this table
 	end
 end
