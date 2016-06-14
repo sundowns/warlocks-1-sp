@@ -2,16 +2,13 @@
 debug = false
 paused = false
 displayNames = false
+totalPlayers = 3
 
 --Test
-drawthatX = 1
-drawthatY = 1
-drawthatR = 1
 
 loadingTimer = 0.5 --remove this when u done circle jerkin
 
 function loadlibs()
-	--Hardon Collider
 	HC = require 'libs/HC'
 	Camera = require 'libs/camera'
 	STI = require 'libs/sti'
@@ -23,7 +20,7 @@ loadingScreen = nil
 function love.load(arg)
 	loading = true
 	loadingScreen = love.graphics.newImage('assets/misc/loading-screen.png')
-	love.graphics.setBackgroundColor( 0, 0, 0)
+	love.graphics.setBackgroundColor(0, 0, 0)
 	loadlibs()
 	require("settings")
 	require("util")
@@ -33,6 +30,7 @@ function love.load(arg)
 	require("stage")
 	require("effects")
 	require("entity")
+	require("meta")
 	require("init")
 
 	initialise()
@@ -41,8 +39,6 @@ function love.load(arg)
 	players['PLAYER_1'].spellbook['SPELL2'] = spells['SPRINT']
 	players['PLAYER_1'].spellbook['SPELL3'] = spells['FISSURE']
 	players['PLAYER_1'].spellbook['SPELL4'] = spells['TELEPORT']
-
-	
 end
 -- End Load
 
@@ -70,16 +66,6 @@ function love.update(dt)
 		updateEntities(dt)
 
 		updateCamera()
---[[
-		print('---')
-		for i = 1, #layerPhaseIsActive do
-			if layerPhaseIsActive[i] then 
-				print("phase " .. i .. " is active" ) 
-			else 
-				print("phase " .. i .. " is not active" ) 
-			end
-		end
-]]
 	end
 end
 -- End update
@@ -117,6 +103,9 @@ function love.draw()
 		for i, data in ipairs(textLog) do
 			drawTextData(data, i)
 		end
+
+		print("dmg: " .. stats["PLAYER_1"].roundDamageGiven)
+
 
 		if debug then 
 			local camX, camY = camera:position()

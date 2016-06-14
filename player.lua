@@ -147,18 +147,13 @@ function entityHit(owner, entity, dX, dY, self)
 	end
 end
 
-player1DMG = 0
-
 function applyDamage(player, damage, sourceType, from)
 	if player.state ~= "DEAD" then
 		addTextData(damage, player.x, player.y, 4, sourceType)
 		player.health = math.max(0, player.health - damage)
+		stats[player.name].roundDamageTaken = stats[player.name].roundDamageTaken + damage
 		if sourceType == "DAMAGE_ENEMY" then
-
-			if from == 'PLAYER_1' then
-				player1DMG = player1DMG + damage
-				print("damage: " .. player1DMG)
-			end
+			stats[from].roundDamageGiven = stats[from].roundDamageGiven + damage
 		end
 
 		if player.health <= 0 then

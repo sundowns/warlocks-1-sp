@@ -9,6 +9,7 @@ function initialise()
 		initPlayer(player)
 	end
 	initPlayerControls() 
+	initGame()
 
 	camera = Camera(players['PLAYER_1'].x, players['PLAYER_1'].y)
 	camera:zoom(1.25)
@@ -348,4 +349,18 @@ function initEntities()
 		frameTimer = 0.05,
 		owner = nil
 	}
+end
+
+function initGame()
+	for i = 1, totalPlayers do --if something fucks up, make sure this is initialising correct for all players (namely the last player)
+		print("wtf ayy")
+		stats['PLAYER_'..i] = { 
+			roundDamageGiven = 0, --Done for now, needs to reset on new round
+			totalDamageGiven = 0,
+			roundDamageTaken = 0, --Done for now, needs to reset on new round
+			totalDamageTaken = 0,
+			roundKills = 0,
+			totalKills = 0
+		}
+	end
 end
