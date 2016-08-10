@@ -23,10 +23,8 @@ function initStage()
 end
 
 function drawStage()
-
 	local x, y = camera:position()
 	stage:setDrawRange(-x, -y, love.graphics.getWidth()+x, love.graphics.getHeight()+y)
-	
 	
 	stage:drawLayer(stage.layers["Ground_1"] )
 	stage:drawLayer(stage.layers["Lava_" .. stagePhase])

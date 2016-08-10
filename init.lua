@@ -360,7 +360,9 @@ function initGame()
 			roundDamageTaken = 0, --Done for now, needs to reset on new round
 			totalDamageTaken = 0,
 			roundKills = 0,
-			totalKills = 0
+			totalKills = 0,
+			roundSuicides = 0,
+			totalSuicides = 0
 		}
 	end
 end

@@ -5,16 +5,14 @@ displayNames = false
 totalPlayers = 3
 
 --Test
-
 loadingTimer = 0.5 --remove this when u done circle jerkin
+loadingScreen = nil
 
 function loadlibs()
 	HC = require 'libs/HC'
 	Camera = require 'libs/camera'
 	STI = require 'libs/sti'
 end
-
-loadingScreen = nil
 
 -- Load callback. Called ONCE initially
 function love.load(arg)
@@ -79,7 +77,6 @@ function love.draw()
 
 		drawStage() -- Draw our stage
 
-
 		for i, effect in ipairs(effects) do
 			drawEffect(effect, i)
 		end
@@ -92,10 +89,6 @@ function love.draw()
 			drawPlayer(player)
 		end
 
-		for i, effect in ipairs(effects) do
-			drawEffect(effect, i)
-		end
-
 		for i, projectile in ipairs(projectiles) do
 	  		drawProjectile(projectile)
 		end
@@ -104,8 +97,7 @@ function love.draw()
 			drawTextData(data, i)
 		end
 
-		print("dmg: " .. stats["PLAYER_1"].roundDamageGiven)
-
+		--print("kills: " .. stats["PLAYER_1"].roundKills)
 
 		if debug then 
 			local camX, camY = camera:position()

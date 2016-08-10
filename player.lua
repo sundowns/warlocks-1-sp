@@ -138,9 +138,9 @@ function entityHit(owner, entity, dX, dY, self)
 		
 		if player.state ~= 'DEAD' then
 			if self then	
-				applyDamage(player, dmg, "DAMAGE_SELF", entity.owner)
+				applyDamage(player, dmg, "SELF", entity.owner)
 			else
-				applyDamage(player, dmg, "DAMAGE_ENEMY", entity.owner)
+				applyDamage(player, dmg, "ENEMY", entity.owner)
 			end
 		end
 		entity.hasHit[player.name] = 1
@@ -152,12 +152,19 @@ function applyDamage(player, damage, sourceType, from)
 		addTextData(damage, player.x, player.y, 4, sourceType)
 		player.health = math.max(0, player.health - damage)
 		stats[player.name].roundDamageTaken = stats[player.name].roundDamageTaken + damage
-		if sourceType == "DAMAGE_ENEMY" then
+		if sourceType == "ENEMY" then
 			stats[from].roundDamageGiven = stats[from].roundDamageGiven + damage
 		end
 
 		if player.health <= 0 then
 			player.state = "DEAD"
+			if sourceType == "ENEMY" then
+				stats[from].roundKills = stats[from].roundKills + 1
+			elseif sourceType == "SELF" then
+				stats[from].roundSuicides = stats[from].roundSuicides + 1
+			elseif sourceType == "LAVA" then
+				--figure something out for attributing lava kills correctly
+			end
 		end
 	end
 end
