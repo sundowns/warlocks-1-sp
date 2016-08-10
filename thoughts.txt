@@ -1,0 +1,17 @@
+===============================
+Multiplayer:
+------------
++ Server-Client Model
++ Client Responsibilities:
+	- User Movement (Periodically send to server to be relayed to other clients for non-user character movement)
+	- User State (Server to verify transitions (mostly death -> life?))
+	- User's Projectile Spawning (Use the server somehow to verify cooldowns are up/the player can use X spell at X level)
+	- Collision Detection (Player vs Projectile/Effect, Server to verify & apply resultant)
+
++ Server Responsibilities:
+	- Applying damage
+	- Other player position updates 
+	- Other player's projectile spawning & position updates
+	- Updating timers(???)
+
+	To be continued

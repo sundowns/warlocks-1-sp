@@ -97,8 +97,6 @@ function love.draw()
 			drawTextData(data, i)
 		end
 
-		--print("kills: " .. stats["PLAYER_1"].roundKills)
-
 		if debug then 
 			local camX, camY = camera:position()
 			love.graphics.setColor(255, 0, 0, 255)

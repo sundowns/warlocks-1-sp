@@ -353,7 +353,6 @@ end
 
 function initGame()
 	for i = 1, totalPlayers do --if something fucks up, make sure this is initialising correct for all players (namely the last player)
-		print("wtf ayy")
 		stats['PLAYER_'..i] = { 
 			roundDamageGiven = 0, --Done for now, needs to reset on new round
 			totalDamageGiven = 0,
