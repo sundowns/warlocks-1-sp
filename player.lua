@@ -116,7 +116,7 @@ function entityHit(owner, entity, dX, dY, self)
 	if entity.hasHit[player.name] == nil or entity.multiHit then
 		if entity.spell.name == "Fireball" or entity.spell.name == "Fissure" then
 			local xAccel = math.clamp(-dX*player.impact_acceleration, -entity.max_impulse, entity.max_impulse)
-			local xAbsAccel = math.abs(xAccel)
+			local xAbsAccel = math.abs(xAccel) --needs to be additive in direction & speed, currently direction NEVER changes if someone is already hit
 			if player.x_impact_velocity > 0 then
 				player.x_impact_velocity = math.clamp(player.x_impact_velocity + xAbsAccel, -player.terminal_velocity, player.terminal_velocity)
 			elseif player.x_impact_velocity < 0 then
